@@ -2,73 +2,80 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include <GLFW/glfw3.h>
-#include <iostream>
+#include <string>
+
+enum Screen { LOGIN, SIGNUP, DASHBOARD };
 
 int main() {
-    // 1. Initialize the GLFW Windowing System
-    if (!glfwInit()) {
-        std::cerr << "Failed to initialize GLFW\n";
-        return -1;
-    }
-
-    // 2. Create the Application Window
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "Anime & Manga Tracker", nullptr, nullptr);
-    if (!window) {
-        std::cerr << "Failed to create window\n";
-        glfwTerminate();
-        return -1;
-    }
+    if (!glfwInit()) return 1;
+    GLFWwindow* window = glfwCreateWindow(1280, 720, "AniLog", NULL, NULL);
     glfwMakeContextCurrent(window);
-    glfwSwapInterval(1); // Enable VSync
 
-    // 3. Initialize Dear ImGui
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    ImGui::StyleColorsDark(); // Dark Mode Theme
-
-    // 4. Link ImGui to GLFW and OpenGL
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
 
-    // 5. The Main Application Loop
+    Screen currentScreen = LOGIN;
+    // Input buffers
+    char usernameInput[64] = "";
+    char passwordInput[64] = "";
+
     while (!glfwWindowShouldClose(window)) {
-        glfwPollEvents(); 
+        glfwPollEvents();
+        ImGui_ImplOpenGL3_NewFrame(); ImGui_ImplGlfw_NewFrame(); ImGui::NewFrame();
 
-        // Start a new graphical frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
+        ImGuiIO& io = ImGui::GetIO();
 
-        // --- YOUR UI DASHBOARD STARTS HERE ---
-        ImGui::Begin("Main Dashboard"); 
-        ImGui::Text("Welcome to the Anime & Manga Tracker!");
-        ImGui::Separator(); 
-        
-        if (ImGui::Button("Add New Anime Record")) {
-            std::cout << "Add Record button clicked in console!\n";
+        if (currentScreen == LOGIN) {
+            // Perfect centering for the login box
+            ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+            ImGui::SetNextWindowSize(ImVec2(320, 300));
+
+            ImGui::Begin("Auth", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+            
+            ImGui::Text("Username");
+            ImGui::InputText("##username", usernameInput, IM_ARRAYSIZE(usernameInput));
+
+            ImGui::Spacing();
+            ImGui::Text("Password");
+            ImGui::InputText("##password", passwordInput, IM_ARRAYSIZE(passwordInput), ImGuiInputTextFlags_Password);
+
+            ImGui::Spacing(); ImGui::Spacing();
+            if (ImGui::Button("Log In", ImVec2(300, 40))) { currentScreen = DASHBOARD; }
+
+            ImGui::Spacing();
+            // Custom blue button for Sign Up
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.4f, 0.8f, 1.0f)); 
+            if (ImGui::Button("Need an account? Sign Up", ImVec2(300, 30))) { currentScreen = SIGNUP; }
+            ImGui::PopStyleColor(); // Return to default color
+
+            ImGui::End();
+        } 
+        else if (currentScreen == SIGNUP) {
+            // Placeholder for sign up screen
+            ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+            ImGui::Begin("Sign Up", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+            ImGui::Text("Create your account");
+            if (ImGui::Button("Back to Login")) { currentScreen = LOGIN; }
+            ImGui::End();
         }
-        ImGui::End();
-        // --- YOUR UI DASHBOARD ENDS HERE ---
+        else {
+            // Dashboard (Fullscreen Layout)
+            ImGui::SetNextWindowPos(ImVec2(0, 0));
+            ImGui::SetNextWindowSize(ImVec2(200, io.DisplaySize.y));
+            ImGui::Begin("Sidebar", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+            ImGui::Text("AniLog");
+            if (ImGui::Button("Logout")) { currentScreen = LOGIN; }
+            ImGui::End();
+        }
 
-        // 6. Render the graphics to the screen
         ImGui::Render();
-        int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
-        glViewport(0, 0, display_w, display_h);
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f); 
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
         glfwSwapBuffers(window);
     }
-
-    // 7. Clean up memory on exit
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-    glfwDestroyWindow(window);
-    glfwTerminate();
-
+    // ... [Cleanup] ...
     return 0;
 }
