@@ -1,0 +1,6 @@
+# Ignore build folders and compiled files
+build/
+.vscode/
+*.exe
+*.o
+*.obj
