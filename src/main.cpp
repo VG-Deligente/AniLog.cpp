@@ -7,6 +7,7 @@
 #include <vector>
 #include <sstream>
 #include <ctime>
+#include <algorithm> 
 
 using namespace std;
 
@@ -16,28 +17,30 @@ using namespace std;
 // =============================================================================
 
 enum Screen { LOGIN, SIGNUP, DASHBOARD };
-enum DashboardTab { LIBRARY, ADD_MEDIA, EDIT_MEDIA, ACTIVITY_LOG };
+// Added STATISTICS to the DashboardTab enum
+enum DashboardTab { LIBRARY, ADD_MEDIA, EDIT_MEDIA, ACTIVITY_LOG, STATISTICS };
 
 // --- DATA STRUCTURES ---
+
 struct UserRecord {
     string username;
     string password;
 };
 
-// RUBRIC: Inventory Data Structure
 struct MediaRecord {
     string title;
     string type;           // Anime or Manga
     int currentProgress;   // Watched/Read (Deducted Stock)
-    int totalProgress;     // Total Episodes (Total Stock)
+    int totalProgress;     // Total Episodes/Chapters (Total Stock)
     int rating;            // 1 to 5
-    string status;         // "Reading/Watching", "Completed", "Dropped"
+    string status;         // "Watching", "Reading", "Completed", "Dropped"
     string dateStarted;    
     string dateFinished;   
     int rereadCount;       
 };
 
 // --- GLOBAL VARIABLES ---
+
 vector<UserRecord> userDatabase;
 vector<MediaRecord> currentLibrary;
 vector<string> activityLogs;
@@ -51,19 +54,25 @@ DashboardTab currentTab = LIBRARY;
 
 // Input buffers for Add/Edit forms
 char inputTitle[128] = "";
-char inputType[32] = "Anime";
+int inputTypeIndex = 0;     // 0 = Anime, 1 = Manga
 int inputCurrent = 0;
 int inputTotal = 12;
-int inputRating = 0;
-char inputStatus[32] = "Watching";
-int editingIndex = -1; // Tracks which inventory item is being updated
+int inputRating = 1;
+int inputStatusIndex = 0;   // 0 = Active (Watching/Reading), 1 = Completed, 2 = Dropped
+int editingIndex = -1;      
 
-// Search buffer
+// Filter and Search buffers
 char searchBuffer[128] = "";
+int currentFilterIndex = 0; // 0 = All, 1 = Anime, 2 = Manga
+
+// Helper arrays to map UI selections to string data
+const char* typeOptions[] = { "Anime", "Manga" };
+const char* animeStatusOptions[] = { "Watching", "Completed", "Dropped" };
+const char* mangaStatusOptions[] = { "Reading", "Completed", "Dropped" };
+const char* filterOptions[] = { "All Media", "Anime Only", "Manga Only" };
 
 // --- UTILITY FUNCTIONS ---
 
-// Gets today's date as a string (YYYY-MM-DD)
 string getCurrentDate() {
     time_t now = time(0);
     tm* ltm = localtime(&now);
@@ -72,7 +81,6 @@ string getCurrentDate() {
     return string(dateStr);
 }
 
-// RUBRIC: Generate transaction summaries or order receipts
 void logActivity(string action) {
     string entry = "[" + getCurrentDate() + "] " + action;
     activityLogs.push_back(entry);
@@ -84,7 +92,18 @@ void logActivity(string action) {
     }
 }
 
-// --- FILE HANDLING: USERS ---
+// --- SORTING ALGORITHMS ---
+
+bool sortTitleAsc(const MediaRecord& a, const MediaRecord& b) { return a.title < b.title; }
+bool sortTitleDesc(const MediaRecord& a, const MediaRecord& b) { return a.title > b.title; }
+bool sortRatingDesc(const MediaRecord& a, const MediaRecord& b) { return a.rating > b.rating; }
+bool sortProgressDesc(const MediaRecord& a, const MediaRecord& b) { 
+    float pctA = (a.totalProgress > 0) ? (float)a.currentProgress / a.totalProgress : 0;
+    float pctB = (b.totalProgress > 0) ? (float)b.currentProgress / b.totalProgress : 0;
+    return pctA > pctB; 
+}
+
+// --- FILE HANDLING ---
 
 void loadUsers() {
     ifstream file("users.txt");
@@ -104,14 +123,10 @@ void saveUser(UserRecord u) {
     }
 }
 
-// --- FILE HANDLING: INVENTORY (LIBRARY) ---
-
-// RUBRIC: Retrieve inventory records using file handling
 void loadLibrary() {
     currentLibrary.clear();
     activityLogs.clear();
 
-    // Load Media
     ifstream file(loggedInUser + "_library.txt");
     if (file.is_open()) {
         string line, val;
@@ -136,7 +151,6 @@ void loadLibrary() {
         file.close();
     }
 
-    // Load Logs
     ifstream logFile(loggedInUser + "_logs.txt");
     if (logFile.is_open()) {
         string logLine;
@@ -147,7 +161,6 @@ void loadLibrary() {
     }
 }
 
-// RUBRIC: Save inventory records using file handling
 void saveLibrary() {
     ofstream file(loggedInUser + "_library.txt");
     if (file.is_open()) {
@@ -193,8 +206,8 @@ bool loginUser(string username, string password) {
     for (int i = 0; i < userDatabase.size(); i++) {
         if (userDatabase[i].username == username && userDatabase[i].password == password) {
             loggedInUser = username;
-            loadLibrary(); // Load user's personal inventory
-            logActivity("User logged in.");
+            loadLibrary(); 
+            logActivity("System Access: User logged in.");
             clearMessage();
             return true;
         }
@@ -203,19 +216,18 @@ bool loginUser(string username, string password) {
     return false;
 }
 
-// --- UI HELPERS ---
 void resetForm() {
     inputTitle[0] = '\0';
-    snprintf(inputType, sizeof(inputType), "Anime");
+    inputTypeIndex = 0;
     inputCurrent = 0;
     inputTotal = 12;
-    inputRating = 0;
-    snprintf(inputStatus, sizeof(inputStatus), "Watching");
+    inputRating = 3;
+    inputStatusIndex = 0;
     editingIndex = -1;
 }
 
 // =============================================================================
-//  MAIN PROGRAM
+//  MAIN PROGRAM / GUI RENDER LOOP
 // =============================================================================
 
 int main() {
@@ -230,8 +242,14 @@ int main() {
 
     ImGui::StyleColorsDark();
     ImGuiStyle& style = ImGui::GetStyle();
-    style.WindowRounding = 10.0f;
-    style.Colors[ImGuiCol_WindowBg] = ImVec4(0.10f, 0.10f, 0.15f, 1.0f);
+    style.WindowRounding = 8.0f;
+    style.FrameRounding = 6.0f;
+    style.GrabRounding = 6.0f;
+    style.Colors[ImGuiCol_WindowBg] = ImVec4(0.08f, 0.08f, 0.12f, 1.0f);
+    style.Colors[ImGuiCol_Button] = ImVec4(0.18f, 0.35f, 0.58f, 1.0f);
+    style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.24f, 0.45f, 0.75f, 1.0f);
+    style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.12f, 0.25f, 0.45f, 1.0f);
+    style.Colors[ImGuiCol_Header] = ImVec4(0.18f, 0.35f, 0.58f, 0.8f);
 
     loadUsers();
 
@@ -245,7 +263,7 @@ int main() {
         ImGuiIO& io = ImGui::GetIO();
 
         // ---------------------------------------------------------------------
-        // AUTHENTICATION SCREENS (LOGIN / SIGNUP)
+        // AUTHENTICATION SCREENS
         // ---------------------------------------------------------------------
         if (currentScreen == LOGIN || currentScreen == SIGNUP) {
             float winW = 600.0f, winH = 550.0f, elemW = 480.0f;
@@ -259,7 +277,7 @@ int main() {
             ImGui::Spacing(); ImGui::SetWindowFontScale(3.0f);
             float titleW = ImGui::CalcTextSize("ANILOG").x;
             ImGui::SetCursorPosX((winW - titleW) * 0.5f);
-            ImGui::TextColored(ImVec4(0.29f, 0.56f, 1.0f, 1.0f), "ANILOG");
+            ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "ANILOG");
             
             ImGui::SetWindowFontScale(1.4f); 
             ImGui::Spacing(); ImGui::Separator(); ImGui::Spacing();
@@ -280,12 +298,11 @@ int main() {
 
             if (authMessage != "") {
                 ImGui::Spacing(); ImGui::SetCursorPosX(offsetX);
-                if (isAuthError) ImGui::TextColored(ImVec4(1.0f, 0.38f, 0.38f, 1.0f), "%s", authMessage.c_str());
-                else ImGui::TextColored(ImVec4(0.35f, 0.95f, 0.55f, 1.0f), "%s", authMessage.c_str());
+                if (isAuthError) ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "%s", authMessage.c_str());
+                else ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.6f, 1.0f), "%s", authMessage.c_str());
             }
 
-            ImGui::Spacing(); ImGui::Spacing();
-            ImGui::SetCursorPosX(offsetX);
+            ImGui::Spacing(); ImGui::Spacing(); ImGui::SetCursorPosX(offsetX);
             if (currentScreen == LOGIN) {
                 if (ImGui::Button("Log In", ImVec2(elemW, 50))) {
                     if (loginUser(usernameInput, passwordInput)) {
@@ -314,25 +331,35 @@ int main() {
         // DASHBOARD (INVENTORY SYSTEM)
         // ---------------------------------------------------------------------
         else if (currentScreen == DASHBOARD) {
-            // --- SIDEBAR (RUBRIC: Menu-driven interface) ---
+            
+            // --- SIDEBAR MENU ---
             ImGui::SetNextWindowPos(ImVec2(0, 0));
             ImGui::SetNextWindowSize(ImVec2(250, io.DisplaySize.y));
             ImGui::Begin("Sidebar", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
-            ImGui::SetWindowFontScale(1.4f);
+            ImGui::SetWindowFontScale(1.2f);
             
-            ImGui::TextColored(ImVec4(0.29f, 0.56f, 1.0f, 1.0f), "ANILOG");
-            ImGui::Text("User: %s", loggedInUser.c_str());
-            ImGui::Separator(); ImGui::Spacing();
-
-            if (ImGui::Button("My Vault", ImVec2(230, 40))) currentTab = LIBRARY;
-            if (ImGui::Button("Add Record", ImVec2(230, 40))) { currentTab = ADD_MEDIA; resetForm(); }
-            if (ImGui::Button("Activity Log", ImVec2(230, 40))) currentTab = ACTIVITY_LOG;
-            
+            ImGui::Spacing();
+            ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "ANILOG");
+            ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "User: %s", loggedInUser.c_str());
             ImGui::Spacing(); ImGui::Separator(); ImGui::Spacing();
+
+            if (ImGui::Button("My Vault", ImVec2(230, 45))) currentTab = LIBRARY;
+            ImGui::Spacing();
+            if (ImGui::Button("Add Record", ImVec2(230, 45))) { currentTab = ADD_MEDIA; resetForm(); }
+            ImGui::Spacing();
+            if (ImGui::Button("Statistics", ImVec2(230, 45))) currentTab = STATISTICS;
+            ImGui::Spacing();
+            if (ImGui::Button("Activity Log", ImVec2(230, 45))) currentTab = ACTIVITY_LOG;
+            
+            ImGui::SetCursorPosY(io.DisplaySize.y - 70);
+            ImGui::Separator(); ImGui::Spacing();
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.8f, 0.3f, 0.3f, 1.0f));
             if (ImGui::Button("Logout", ImVec2(230, 40))) {
-                logActivity("User logged out.");
+                logActivity("System Exit: User logged out.");
                 currentScreen = LOGIN; loggedInUser = ""; usernameInput[0]='\0'; passwordInput[0]='\0';
             }
+            ImGui::PopStyleColor(2);
             ImGui::End();
 
             // --- MAIN CONTENT AREA ---
@@ -342,51 +369,65 @@ int main() {
             ImGui::SetWindowFontScale(1.3f);
 
             // ==========================================
-            // TAB 1: LIBRARY (RUBRIC: Display all products)
+            // TAB 1: LIBRARY
             // ==========================================
             if (currentTab == LIBRARY) {
-                ImGui::Text("My Media Vault");
+                ImGui::Text("My Media Vault (Inventory)");
+                ImGui::Separator(); ImGui::Spacing();
                 
-                // RUBRIC: Search for a specific product
-                ImGui::InputText("Search Title", searchBuffer, IM_ARRAYSIZE(searchBuffer));
+                ImGui::SetNextItemWidth(300);
+                ImGui::InputTextWithHint("##search", "Search Title...", searchBuffer, IM_ARRAYSIZE(searchBuffer));
                 string searchStr = searchBuffer;
                 
+                ImGui::SameLine();
+                ImGui::SetNextItemWidth(150);
+                ImGui::Combo("Filter", &currentFilterIndex, filterOptions, IM_ARRAYSIZE(filterOptions));
+
+                ImGui::SameLine();
+                ImGui::Text("  Sort:");
+                ImGui::SameLine();
+                if (ImGui::Button("A-Z")) std::sort(currentLibrary.begin(), currentLibrary.end(), sortTitleAsc);
+                ImGui::SameLine();
+                if (ImGui::Button("Z-A")) std::sort(currentLibrary.begin(), currentLibrary.end(), sortTitleDesc);
+                ImGui::SameLine();
+                if (ImGui::Button("Rating")) std::sort(currentLibrary.begin(), currentLibrary.end(), sortRatingDesc);
+                ImGui::SameLine();
+                if (ImGui::Button("Progress")) std::sort(currentLibrary.begin(), currentLibrary.end(), sortProgressDesc);
+
                 ImGui::Spacing();
                 
-                if (ImGui::BeginTable("LibraryTable", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
-                    ImGui::TableSetupColumn("Title");
-                    ImGui::TableSetupColumn("Type");
-                    ImGui::TableSetupColumn("Stock/Progress");
-                    ImGui::TableSetupColumn("Status");
-                    ImGui::TableSetupColumn("Rating");
-                    ImGui::TableSetupColumn("Actions");
+                if (ImGui::BeginTable("LibraryTable", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp)) {
+                    ImGui::TableSetupColumn("Title", ImGuiTableColumnFlags_WidthStretch, 2.5f);
+                    ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthStretch, 1.0f);
+                    ImGui::TableSetupColumn("Progress", ImGuiTableColumnFlags_WidthStretch, 1.2f);
+                    ImGui::TableSetupColumn("Status", ImGuiTableColumnFlags_WidthStretch, 1.5f);
+                    ImGui::TableSetupColumn("Rating", ImGuiTableColumnFlags_WidthStretch, 0.8f);
+                    ImGui::TableSetupColumn("Actions", ImGuiTableColumnFlags_WidthStretch, 2.5f);
                     ImGui::TableHeadersRow();
 
                     for (int i = 0; i < currentLibrary.size(); i++) {
-                        // Filter search
+                        
+                        if (currentFilterIndex == 1 && currentLibrary[i].type != "Anime") continue;
+                        if (currentFilterIndex == 2 && currentLibrary[i].type != "Manga") continue;
                         if (searchStr != "" && currentLibrary[i].title.find(searchStr) == string::npos) continue;
 
                         ImGui::TableNextRow();
-                        ImGui::TableSetColumnIndex(0); ImGui::Text("%s", currentLibrary[i].title.c_str());
+                        ImGui::TableSetColumnIndex(0); ImGui::TextWrapped("%s", currentLibrary[i].title.c_str());
                         ImGui::TableSetColumnIndex(1); ImGui::Text("%s", currentLibrary[i].type.c_str());
-                        
-                        // RUBRIC: Monitor stock quantities
-                        ImGui::TableSetColumnIndex(2); 
-                        ImGui::Text("%d / %d", currentLibrary[i].currentProgress, currentLibrary[i].totalProgress);
-                        
+                        ImGui::TableSetColumnIndex(2); ImGui::Text("%d / %d", currentLibrary[i].currentProgress, currentLibrary[i].totalProgress);
                         ImGui::TableSetColumnIndex(3); ImGui::Text("%s", currentLibrary[i].status.c_str());
                         ImGui::TableSetColumnIndex(4); ImGui::Text("%d/5", currentLibrary[i].rating);
-                        
                         ImGui::TableSetColumnIndex(5);
                         
-                        // RUBRIC: Accept and process customer orders (Validate & Deduct stock)
                         ImGui::PushID(i);
                         if (currentLibrary[i].currentProgress < currentLibrary[i].totalProgress) {
-                            if (ImGui::Button("Process/Watch", ImVec2(140, 0))) {
+                            // Dynamic button label based on type
+                            string btnLabel = (currentLibrary[i].type == "Anime") ? "+1 Episode" : "+1 Chapter";
+                            
+                            if (ImGui::Button(btnLabel.c_str(), ImVec2(120, 0))) {
                                 currentLibrary[i].currentProgress++;
-                                logActivity("Order Processed: Watched 1 Ep of " + currentLibrary[i].title);
+                                logActivity("Order Processed: Consumed 1 unit of " + currentLibrary[i].title);
                                 
-                                // Auto-complete logic
                                 if (currentLibrary[i].currentProgress == currentLibrary[i].totalProgress) {
                                     currentLibrary[i].status = "Completed";
                                     currentLibrary[i].dateFinished = getCurrentDate();
@@ -395,38 +436,41 @@ int main() {
                                 saveLibrary();
                             }
                         } else {
-                            // If completed, allow "Reread/Rewatch"
-                            if (ImGui::Button("Rewatch System", ImVec2(140, 0))) {
+                            string rBtnLabel = (currentLibrary[i].type == "Anime") ? "Rewatch" : "Reread";
+                            if (ImGui::Button(rBtnLabel.c_str(), ImVec2(120, 0))) {
                                 currentLibrary[i].rereadCount++;
-                                currentLibrary[i].currentProgress = 0; // Reset progress
-                                currentLibrary[i].status = "Watching";
-                                logActivity("Restocked/Rewatching: " + currentLibrary[i].title);
+                                currentLibrary[i].currentProgress = 0; 
+                                currentLibrary[i].status = (currentLibrary[i].type == "Anime") ? "Watching" : "Reading";
+                                logActivity("Restocked: " + currentLibrary[i].title);
                                 saveLibrary();
                             }
                         }
 
                         ImGui::SameLine();
-                        // RUBRIC: Update existing product information
                         if (ImGui::Button("Edit")) {
                             editingIndex = i;
                             snprintf(inputTitle, sizeof(inputTitle), "%s", currentLibrary[i].title.c_str());
-                            snprintf(inputType, sizeof(inputType), "%s", currentLibrary[i].type.c_str());
+                            inputTypeIndex = (currentLibrary[i].type == "Anime") ? 0 : 1;
                             inputCurrent = currentLibrary[i].currentProgress;
                             inputTotal = currentLibrary[i].totalProgress;
                             inputRating = currentLibrary[i].rating;
-                            snprintf(inputStatus, sizeof(inputStatus), "%s", currentLibrary[i].status.c_str());
+                            
+                            if (currentLibrary[i].status == "Completed") inputStatusIndex = 1;
+                            else if (currentLibrary[i].status == "Dropped") inputStatusIndex = 2;
+                            else inputStatusIndex = 0; 
+
                             currentTab = EDIT_MEDIA;
                         }
 
                         ImGui::SameLine();
-                        // RUBRIC: Delete product records
-                        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.2f, 0.2f, 1.0f));
-                        if (ImGui::Button("Delete")) {
+                        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.2f, 0.2f, 1.0f));
+                        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.3f, 0.3f, 1.0f));
+                        if (ImGui::Button("Del")) {
                             logActivity("Deleted Record: " + currentLibrary[i].title);
                             currentLibrary.erase(currentLibrary.begin() + i);
                             saveLibrary();
                         }
-                        ImGui::PopStyleColor();
+                        ImGui::PopStyleColor(2);
                         ImGui::PopID();
                     }
                     ImGui::EndTable();
@@ -434,46 +478,68 @@ int main() {
             }
             
             // ==========================================
-            // TAB 2: ADD / EDIT MEDIA (RUBRIC: Add new products)
+            // TAB 2: ADD / EDIT MEDIA 
             // ==========================================
             else if (currentTab == ADD_MEDIA || currentTab == EDIT_MEDIA) {
                 ImGui::Text(currentTab == ADD_MEDIA ? "Add New Inventory Record" : "Edit Inventory Record");
                 ImGui::Separator(); ImGui::Spacing();
 
+                ImGui::SetNextItemWidth(400);
                 ImGui::InputText("Title", inputTitle, IM_ARRAYSIZE(inputTitle));
                 
-                // Simplified Type & Status using InputText for basic C++ (No complex ComboBox arrays)
-                ImGui::InputText("Type (Anime/Manga)", inputType, IM_ARRAYSIZE(inputType));
-                ImGui::InputInt("Current Progress", &inputCurrent);
-                ImGui::InputInt("Total Episodes/Chapters", &inputTotal);
-                ImGui::InputInt("Rating (1-5)", &inputRating);
-                ImGui::InputText("Status", inputStatus, IM_ARRAYSIZE(inputStatus));
-
+                ImGui::Spacing(); ImGui::Text("Category Type:"); ImGui::SameLine(150);
+                ImGui::RadioButton("Anime", &inputTypeIndex, 0); ImGui::SameLine();
+                ImGui::RadioButton("Manga", &inputTypeIndex, 1);
                 ImGui::Spacing();
+
+                ImGui::SetNextItemWidth(150);
+                // Dynamic label for progress input
+                ImGui::InputInt(inputTypeIndex == 0 ? "Current Progress (Episodes)" : "Current Progress (Chapters)", &inputCurrent);
+                ImGui::SetNextItemWidth(150);
+                ImGui::InputInt(inputTypeIndex == 0 ? "Total Episodes" : "Total Chapters", &inputTotal);
+                
+                if (inputCurrent < 0) inputCurrent = 0;
+                if (inputTotal < 1) inputTotal = 1;
+                if (inputCurrent > inputTotal) inputCurrent = inputTotal; 
+
+                ImGui::SetNextItemWidth(150);
+                ImGui::SliderInt("Rating", &inputRating, 1, 5); 
+
+                ImGui::SetNextItemWidth(200);
+                // Conditionally assign the correct status options based on the chosen type
+                const char** currentStatusOptions = (inputTypeIndex == 0) ? animeStatusOptions : mangaStatusOptions;
+                ImGui::Combo("Status", &inputStatusIndex, currentStatusOptions, 3);
+
+                ImGui::Spacing(); ImGui::Spacing();
                 
                 if (ImGui::Button("Save Record", ImVec2(200, 50))) {
                     if (string(inputTitle) != "") {
                         if (currentTab == ADD_MEDIA) {
                             MediaRecord newMedia;
                             newMedia.title = inputTitle;
-                            newMedia.type = inputType;
+                            newMedia.type = typeOptions[inputTypeIndex];
                             newMedia.currentProgress = inputCurrent;
                             newMedia.totalProgress = inputTotal;
                             newMedia.rating = inputRating;
-                            newMedia.status = inputStatus;
+                            newMedia.status = currentStatusOptions[inputStatusIndex];
                             newMedia.dateStarted = getCurrentDate();
-                            newMedia.dateFinished = "";
+                            newMedia.dateFinished = (inputCurrent == inputTotal) ? getCurrentDate() : "";
                             newMedia.rereadCount = 0;
                             
                             currentLibrary.push_back(newMedia);
                             logActivity("Added New Product: " + newMedia.title);
                         } else {
                             currentLibrary[editingIndex].title = inputTitle;
-                            currentLibrary[editingIndex].type = inputType;
+                            currentLibrary[editingIndex].type = typeOptions[inputTypeIndex];
                             currentLibrary[editingIndex].currentProgress = inputCurrent;
                             currentLibrary[editingIndex].totalProgress = inputTotal;
                             currentLibrary[editingIndex].rating = inputRating;
-                            currentLibrary[editingIndex].status = inputStatus;
+                            currentLibrary[editingIndex].status = currentStatusOptions[inputStatusIndex];
+                            
+                            if (inputCurrent == inputTotal && currentLibrary[editingIndex].dateFinished == "") {
+                                currentLibrary[editingIndex].dateFinished = getCurrentDate();
+                            }
+
                             logActivity("Updated Product Info: " + string(inputTitle));
                         }
                         saveLibrary();
@@ -481,19 +547,71 @@ int main() {
                         resetForm();
                     }
                 }
+                ImGui::SameLine();
+                if (ImGui::Button("Cancel", ImVec2(100, 50))) {
+                    currentTab = LIBRARY;
+                    resetForm();
+                }
             }
 
             // ==========================================
-            // TAB 3: ACTIVITY LOG (RUBRIC: Generate Receipts)
+            // TAB 3: STATISTICS (NEW)
+            // ==========================================
+            else if (currentTab == STATISTICS) {
+                ImGui::Text("User Statistics & Insights");
+                ImGui::Separator(); ImGui::Spacing();
+
+                int totalAnime = 0, totalManga = 0;
+                int epsWatched = 0, chsRead = 0;
+                int completedCount = 0, droppedCount = 0;
+                int totalRereads = 0;
+
+                // Loop through the vector to aggregate all data dynamically
+                for (size_t i = 0; i < currentLibrary.size(); i++) {
+                    if (currentLibrary[i].type == "Anime") {
+                        totalAnime++;
+                        epsWatched += currentLibrary[i].currentProgress;
+                    } else if (currentLibrary[i].type == "Manga") {
+                        totalManga++;
+                        chsRead += currentLibrary[i].currentProgress;
+                    }
+
+                    if (currentLibrary[i].status == "Completed") completedCount++;
+                    if (currentLibrary[i].status == "Dropped") droppedCount++;
+
+                    totalRereads += currentLibrary[i].rereadCount;
+                }
+
+                // Render Stats UI
+                ImGui::SetWindowFontScale(1.5f);
+                ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.6f, 1.0f), "Overall Vault Status");
+                ImGui::SetWindowFontScale(1.3f);
+                ImGui::Text("Total Anime Tracked: %d", totalAnime);
+                ImGui::Text("Total Manga Tracked: %d", totalManga);
+                ImGui::Text("Completed Titles: %d", completedCount);
+                ImGui::Text("Dropped Titles: %d", droppedCount);
+
+                ImGui::Spacing(); ImGui::Spacing();
+
+                ImGui::SetWindowFontScale(1.5f);
+                ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "Consumption Metrics");
+                ImGui::SetWindowFontScale(1.3f);
+                ImGui::Text("Total Episodes Watched: %d", epsWatched);
+                ImGui::Text("Total Chapters Read: %d", chsRead);
+                ImGui::Text("Total Rewatches / Rereads: %d", totalRereads);
+            }
+
+            // ==========================================
+            // TAB 4: ACTIVITY LOG 
             // ==========================================
             else if (currentTab == ACTIVITY_LOG) {
                 ImGui::Text("Transaction Summary & Order Receipts");
                 ImGui::Separator(); ImGui::Spacing();
 
-                // Scrollable child area
                 ImGui::BeginChild("LogScroll", ImVec2(0, 0), true);
                 for (int i = activityLogs.size() - 1; i >= 0; i--) {
-                    ImGui::Text("%s", activityLogs[i].c_str());
+                    ImGui::TextWrapped("%s", activityLogs[i].c_str());
+                    ImGui::Separator();
                 }
                 ImGui::EndChild();
             }
@@ -502,12 +620,13 @@ int main() {
         }
 
         ImGui::Render();
-        glClearColor(0.07f, 0.07f, 0.10f, 1.0f);
+        glClearColor(0.05f, 0.05f, 0.08f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
     }
 
+    // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
