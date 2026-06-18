@@ -70,46 +70,6 @@ The easiest Windows setup is through MSYS2 UCRT64.
    ./build/AnimeTracker.exe
    ```
 
-## Linux Setup
-
-Install the required packages for your distribution, then build with CMake.
-
-### Ubuntu or Debian
-
-```sh
-sudo apt update
-sudo apt install git cmake g++ libglfw3-dev libgl1-mesa-dev
-git clone https://github.com/VG-Deligente/AniLog.cpp.git
-cd AniLog.cpp
-cmake -S . -B build
-cmake --build build
-./build/AnimeTracker
-```
-
-### Fedora
-
-```sh
-sudo dnf install git cmake gcc-c++ glfw-devel mesa-libGL-devel
-git clone https://github.com/VG-Deligente/AniLog.cpp.git
-cd AniLog.cpp
-cmake -S . -B build
-cmake --build build
-./build/AnimeTracker
-```
-
-## macOS Setup
-
-Install Xcode Command Line Tools and Homebrew first, then run:
-
-```sh
-brew install git cmake glfw
-git clone https://github.com/VG-Deligente/AniLog.cpp.git
-cd AniLog.cpp
-cmake -S . -B build
-cmake --build build
-./build/AnimeTracker
-```
-
 ## Visual Studio Code Setup
 
 You can also build the project from VS Code.
