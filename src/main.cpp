@@ -266,12 +266,12 @@ int main() {
         // AUTHENTICATION SCREENS
         // ---------------------------------------------------------------------
         if (currentScreen == LOGIN || currentScreen == SIGNUP) {
-            float winW = 600.0f, winH = 550.0f, elemW = 480.0f;
+            float winW = 600.0f, winH = 600.0f, elemW = 480.0f;
             float offsetX = (winW - elemW) * 0.5f;
 
             ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
             ImGui::SetNextWindowSize(ImVec2(winW, winH));
-
+            
             ImGui::Begin(currentScreen == LOGIN ? "Login" : "Signup", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
             
             ImGui::Spacing(); ImGui::SetWindowFontScale(3.0f);
@@ -279,22 +279,29 @@ int main() {
             ImGui::SetCursorPosX((winW - titleW) * 0.5f);
             ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "ANILOG");
             
-            ImGui::SetWindowFontScale(1.4f); 
+            ImGui::SetWindowFontScale(1.5f); 
             ImGui::Spacing(); ImGui::Separator(); ImGui::Spacing();
+            ImGui::Dummy(ImVec2(0, 50));
 
             ImGui::SetCursorPosX(offsetX); ImGui::Text(currentScreen == LOGIN ? "Username" : "Choose Username");
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10, 12)); 
             ImGui::SetCursorPosX(offsetX); ImGui::SetNextItemWidth(elemW);
             ImGui::InputText("##user", usernameInput, IM_ARRAYSIZE(usernameInput));
+            ImGui::PopStyleVar();
             ImGui::Spacing();
 
-            ImGui::SetCursorPosX(offsetX); ImGui::Text(currentScreen == LOGIN ? "Password" : "Create Password");
+            ImGui::SetCursorPosX(offsetX); ImGui::Text(currentScreen == LOGIN ? "Password" : "Create Password"); 
             ImGui::SetCursorPosX(offsetX); 
             float toggleBtnW = 80.0f;
+            float inputH = ImGui::GetFrameHeight(); 
+
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10, 12));
             ImGui::SetNextItemWidth(elemW - toggleBtnW - 8.0f);
             ImGuiInputTextFlags passFlags = showPassword ? ImGuiInputTextFlags_None : ImGuiInputTextFlags_Password;
             ImGui::InputText("##pass", passwordInput, IM_ARRAYSIZE(passwordInput), passFlags);
+            ImGui::PopStyleVar();
             ImGui::SameLine();
-            if (ImGui::Button(showPassword ? "Hide" : "Show", ImVec2(toggleBtnW, 0))) showPassword = !showPassword;
+            if (ImGui::Button(showPassword ? "Hide" : "Show", ImVec2(toggleBtnW, inputH))) showPassword = !showPassword;
 
             if (authMessage != "") {
                 ImGui::Spacing(); ImGui::SetCursorPosX(offsetX);
@@ -346,7 +353,7 @@ int main() {
             ImGui::SetNextWindowPos(ImVec2(0, 0));
             ImGui::SetNextWindowSize(ImVec2(250, io.DisplaySize.y));
             ImGui::Begin("Sidebar", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
-            ImGui::SetWindowFontScale(1.2f);
+            ImGui::SetWindowFontScale(1.5f);
             
             ImGui::Spacing();
             ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "ANILOG");
@@ -569,8 +576,8 @@ int main() {
                         
                         }
                     ImGui::EndTable();
-                    }
                 }
+            }
             
             
             // ==========================================
@@ -707,73 +714,20 @@ int main() {
                                 // ── SECTION 1: Overall Vault Status ──
                 ImGui::SetWindowFontScale(1.4f);
                 ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.6f, 1.0f), "Overall Vault Status");
-                ImGui::SetWindowFontScale(1.3f); ImGui::Spacing();
+                ImGui::SetWindowFontScale(1.3f);
+                ImGui::Text("Total Anime Tracked: %d", totalAnime);
+                ImGui::Text("Total Manga Tracked: %d", totalManga);
+                ImGui::Text("Completed Titles: %d", completedCount);
+                ImGui::Text("Dropped Titles: %d", droppedCount);
 
-                if (ImGui::BeginTable("StatsVault", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp)) {
-                    ImGui::TableSetupColumn("Anime Tracked",   ImGuiTableColumnFlags_WidthStretch, 1.0f);
-                    ImGui::TableSetupColumn("Manga Tracked",   ImGuiTableColumnFlags_WidthStretch, 1.0f);
-                    ImGui::TableSetupColumn("Watching",        ImGuiTableColumnFlags_WidthStretch, 1.0f);
-                    ImGui::TableSetupColumn("Reading",         ImGuiTableColumnFlags_WidthStretch, 1.0f);
-                    ImGui::TableSetupColumn("Completed",       ImGuiTableColumnFlags_WidthStretch, 1.0f);
-                    ImGui::TableSetupColumn("Dropped",         ImGuiTableColumnFlags_WidthStretch, 1.0f);
-                    ImGui::TableHeadersRow();
+                ImGui::Spacing(); ImGui::Spacing();
 
-                    ImGui::TableNextRow();
-                    ImGui::TableSetColumnIndex(0); ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "%d", totalAnime);
-                    ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "%d", totalManga);
-                    ImGui::TableSetColumnIndex(2); ImGui::TextColored(ImVec4(0.4f,  0.8f,  1.0f, 1.0f), "%d", watchingCount);
-                    ImGui::TableSetColumnIndex(3); ImGui::TextColored(ImVec4(0.4f,  0.8f,  1.0f, 1.0f), "%d", readingCount);
-                    ImGui::TableSetColumnIndex(4); ImGui::TextColored(ImVec4(0.4f,  1.0f,  0.6f, 1.0f), "%d", completedCount);
-                    ImGui::TableSetColumnIndex(5); ImGui::TextColored(ImVec4(1.0f,  0.4f,  0.4f, 1.0f), "%d", droppedCount);
-                    ImGui::EndTable();
-                }
-
-                ImGui::Spacing(); ImGui::Separator(); ImGui::Spacing();
-
-                // ── SECTION 2: Consumption Metrics ──
-                ImGui::SetWindowFontScale(1.4f);
+                ImGui::SetWindowFontScale(1.5f);
                 ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "Consumption Metrics");
-                ImGui::SetWindowFontScale(1.3f); ImGui::Spacing();
-
-                if (ImGui::BeginTable("StatsMetrics", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp)) {
-                    ImGui::TableSetupColumn("Episodes Watched", ImGuiTableColumnFlags_WidthStretch, 1.0f);
-                    ImGui::TableSetupColumn("Chapters Read",    ImGuiTableColumnFlags_WidthStretch, 1.0f);
-                    ImGui::TableSetupColumn("Rewatches/Rereads",ImGuiTableColumnFlags_WidthStretch, 1.0f);
-                    ImGui::TableHeadersRow();
-
-                    ImGui::TableNextRow();
-                    ImGui::TableSetColumnIndex(0); ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "%d", epsWatched);
-                    ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "%d", chsRead);
-                    ImGui::TableSetColumnIndex(2); ImGui::TextColored(ImVec4(1.0f,  0.85f, 0.3f, 1.0f), "%d", totalRereads);
-                    ImGui::EndTable();
-                }
-
-                ImGui::Spacing(); ImGui::Separator(); ImGui::Spacing();
-
-                // ── SECTION 3: Additional Insights ──
-                ImGui::SetWindowFontScale(1.4f);
-                ImGui::TextColored(ImVec4(1.0f, 0.75f, 0.3f, 1.0f), "Additional Insights");
-                ImGui::SetWindowFontScale(1.3f); ImGui::Spacing();
-
-                if (ImGui::BeginTable("StatsInsights", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp)) {
-                    ImGui::TableSetupColumn("Avg Rating",        ImGuiTableColumnFlags_WidthStretch, 1.0f);
-                    ImGui::TableSetupColumn("Completion Rate",   ImGuiTableColumnFlags_WidthStretch, 1.0f);
-                    ImGui::TableSetupColumn("Most Watched Anime",ImGuiTableColumnFlags_WidthStretch, 1.5f);
-                    ImGui::TableSetupColumn("Most Read Manga",   ImGuiTableColumnFlags_WidthStretch, 1.5f);
-                    ImGui::TableHeadersRow();
-
-                    ImGui::TableNextRow();
-                    ImGui::TableSetColumnIndex(0); ImGui::TextColored(ImVec4(1.0f, 0.85f, 0.3f, 1.0f),
-                        ratedCount > 0 ? "%.2f / 5" : "N/A", avgRating);
-                    ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.6f, 1.0f),
-                        currentLibrary.size() > 0 ? "%.1f%%" : "N/A", completionRate);
-                    ImGui::TableSetColumnIndex(2); ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f),
-                        "%s", mostWatchedTitle.c_str());
-                    ImGui::TableSetColumnIndex(3); ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f),
-                        "%s", mostReadTitle.c_str());
-                    ImGui::EndTable();
-                }
-                ImGui::PopStyleColor(4);
+                ImGui::SetWindowFontScale(1.3f);
+                ImGui::Text("Total Episodes Watched: %d", epsWatched);
+                ImGui::Text("Total Chapters Read: %d", chsRead);
+                ImGui::Text("Total Rewatches / Rereads: %d", totalRereads);
             }
 
             // ==========================================
