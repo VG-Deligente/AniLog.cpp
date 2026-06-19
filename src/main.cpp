@@ -361,15 +361,43 @@ int main() {
             ImGui::Spacing();
             if (ImGui::Button("Activity Log", ImVec2(230, 45))) currentTab = ACTIVITY_LOG;
             
-            ImGui::SetCursorPosY(io.DisplaySize.y - 70);
+           ImGui::SetCursorPosY(io.DisplaySize.y - 70);
             ImGui::Separator(); ImGui::Spacing();
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.8f, 0.3f, 0.3f, 1.0f));
             if (ImGui::Button("Logout", ImVec2(230, 40))) {
-                logActivity("User Logout: " + loggedInUser + " signed out.");
-                currentScreen = LOGIN; loggedInUser = ""; usernameInput[0]='\0'; passwordInput[0]='\0';
+                ImGui::OpenPopup("Logout Confirmation");
             }
             ImGui::PopStyleColor(2);
+
+            // Confirmation modal
+            ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+            ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+            if (ImGui::BeginPopupModal("Logout Confirmation", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+                ImGui::Text("Are you sure you want to logout?");
+                ImGui::Spacing();
+                ImGui::Separator();
+                ImGui::Spacing();
+
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.8f, 0.3f, 0.3f, 1.0f));
+                if (ImGui::Button("Yes, Logout", ImVec2(120, 35))) {
+                    logActivity("User Logout: " + loggedInUser + " signed out.");
+                    currentScreen = LOGIN; loggedInUser = ""; usernameInput[0]='\0'; passwordInput[0]='\0';
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::PopStyleColor(2);
+
+                ImGui::SameLine();
+                ImGui::Spacing(); ImGui::SameLine();
+
+                if (ImGui::Button("Cancel", ImVec2(120, 35))) {
+                    ImGui::CloseCurrentPopup();
+                }
+
+                ImGui::EndPopup();
+            }
+
             ImGui::End();
 
             // --- MAIN CONTENT AREA ---
