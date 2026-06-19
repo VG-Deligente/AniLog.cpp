@@ -207,7 +207,7 @@ bool loginUser(string username, string password) {
         if (userDatabase[i].username == username && userDatabase[i].password == password) {
             loggedInUser = username;
             loadLibrary(); 
-            logActivity("User Login: " + loggedInUser + " signed in.");
+           logActivity("User Login: " + loggedInUser + " signed in.");
             clearMessage();
             return true;
         }
@@ -564,8 +564,8 @@ int main() {
                 }
             }
 
-           // ==========================================
-            // TAB 3: STATISTICS
+            // ==========================================
+            // TAB 3: STATISTICS (NEW)
             // ==========================================
             else if (currentTab == STATISTICS) {
                 ImGui::Text("User Statistics & Insights");
@@ -576,90 +576,59 @@ int main() {
                 int completedCount = 0, droppedCount = 0;
                 int totalRereads = 0;
 
+                // Loop through the vector to aggregate all data dynamically
                 for (size_t i = 0; i < currentLibrary.size(); i++) {
-                    if (currentLibrary[i].type == "Anime") { totalAnime++; epsWatched += currentLibrary[i].currentProgress; }
-                    else if (currentLibrary[i].type == "Manga") { totalManga++; chsRead += currentLibrary[i].currentProgress; }
+                    if (currentLibrary[i].type == "Anime") {
+                        totalAnime++;
+                        epsWatched += currentLibrary[i].currentProgress;
+                    } else if (currentLibrary[i].type == "Manga") {
+                        totalManga++;
+                        chsRead += currentLibrary[i].currentProgress;
+                    }
+
                     if (currentLibrary[i].status == "Completed") completedCount++;
                     if (currentLibrary[i].status == "Dropped") droppedCount++;
+
                     totalRereads += currentLibrary[i].rereadCount;
                 }
 
-                ImGui::PushStyleColor(ImGuiCol_TableRowBg,       ImVec4(0.10f, 0.10f, 0.20f, 0.8f));
-                ImGui::PushStyleColor(ImGuiCol_TableRowBgAlt,    ImVec4(0.15f, 0.15f, 0.28f, 0.8f));
-                ImGui::PushStyleColor(ImGuiCol_TableBorderStrong,ImVec4(0.35f, 0.65f, 1.0f,  0.5f));
-                ImGui::PushStyleColor(ImGuiCol_TableBorderLight, ImVec4(0.35f, 0.65f, 1.0f,  0.3f));
-
+                // Render Stats UI
                 ImGui::SetWindowFontScale(1.5f);
                 ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.6f, 1.0f), "Overall Vault Status");
-                ImGui::SetWindowFontScale(1.3f); ImGui::Spacing();
+                ImGui::SetWindowFontScale(1.3f);
+                ImGui::Text("Total Anime Tracked: %d", totalAnime);
+                ImGui::Text("Total Manga Tracked: %d", totalManga);
+                ImGui::Text("Completed Titles: %d", completedCount);
+                ImGui::Text("Dropped Titles: %d", droppedCount);
 
-                if (ImGui::BeginTable("StatsVault", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp)) {
-                    ImGui::TableSetupColumn("Category", ImGuiTableColumnFlags_WidthStretch, 1.5f);
-                    ImGui::TableSetupColumn("Count",    ImGuiTableColumnFlags_WidthStretch, 1.0f);
-                    ImGui::TableHeadersRow();
-                    ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Total Anime Tracked");  ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "%d", totalAnime);
-                    ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Total Manga Tracked");  ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "%d", totalManga);
-                    ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Completed Titles");     ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.4f,  1.0f,  0.6f, 1.0f), "%d", completedCount);
-                    ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Dropped Titles");       ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(1.0f,  0.4f,  0.4f, 1.0f), "%d", droppedCount);
-                    ImGui::EndTable();
-                }
+                ImGui::Spacing(); ImGui::Spacing();
 
-                ImGui::Spacing(); 
-                ImGui::Spacing();
                 ImGui::SetWindowFontScale(1.5f);
                 ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "Consumption Metrics");
-                ImGui::SetWindowFontScale(1.3f); ImGui::Spacing();
-
-                if (ImGui::BeginTable("StatsMetrics", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp)) {
-                    ImGui::TableSetupColumn("Metric", ImGuiTableColumnFlags_WidthStretch, 1.5f);
-                    ImGui::TableSetupColumn("Value",  ImGuiTableColumnFlags_WidthStretch, 1.0f);
-                    ImGui::TableHeadersRow();
-                    ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Total Episodes Watched");    ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "%d", epsWatched);
-                    ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Total Chapters Read");       ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "%d", chsRead);
-                    ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Total Rewatches / Rereads"); ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(1.0f,  0.85f, 0.3f, 1.0f), "%d", totalRereads);
-                    ImGui::EndTable();
-                }
-
-                ImGui::PopStyleColor(4);
+                ImGui::SetWindowFontScale(1.3f);
+                ImGui::Text("Total Episodes Watched: %d", epsWatched);
+                ImGui::Text("Total Chapters Read: %d", chsRead);
+                ImGui::Text("Total Rewatches / Rereads: %d", totalRereads);
             }
 
             // ==========================================
-            // TAB 4: ACTIVITY LOG
+            // TAB 4: ACTIVITY LOG 
             // ==========================================
             else if (currentTab == ACTIVITY_LOG) {
-                ImGui::Text("Activity Log - Record Management History");
+                ImGui::Text("Activity Log — Record Management History");
                 ImGui::Separator(); ImGui::Spacing();
 
                 ImGui::BeginChild("LogScroll", ImVec2(0, 0), true);
-
-                ImVec4 dateColors[] = {
-                    ImVec4(0.18f, 0.35f, 0.58f, 0.4f),
-                    ImVec4(0.35f, 0.18f, 0.58f, 0.4f)
-                };
-
-                string lastDate = "";
-                int colorIndex = -1;
-
                 for (int i = activityLogs.size() - 1; i >= 0; i--) {
-                    string log = activityLogs[i];
-                    string date = "";
-                    if (log.size() > 12 && log[0] == '[')
-                        date = log.substr(1, 10);
-
-                    if (date != lastDate) { lastDate = date; colorIndex = (colorIndex + 1) % 2; }
-
-                    ImVec2 rowMin = ImGui::GetCursorScreenPos();
-                    ImVec2 rowMax = ImVec2(rowMin.x + ImGui::GetContentRegionAvail().x, rowMin.y + ImGui::GetTextLineHeightWithSpacing() * 2);
-                    ImGui::GetWindowDrawList()->AddRectFilled(rowMin, rowMax, ImGui::ColorConvertFloat4ToU32(dateColors[colorIndex]), 4.0f);
-
-                    ImGui::TextWrapped("%s", log.c_str());
+                    ImGui::TextWrapped("%s", activityLogs[i].c_str());
                     ImGui::Separator();
                 }
-
                 ImGui::EndChild();
             }
+
             ImGui::End();
         }
+
         ImGui::Render();
         glClearColor(0.05f, 0.05f, 0.08f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
