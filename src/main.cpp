@@ -483,7 +483,7 @@ int main() {
                                 saveLibrary();
                             }
                         }
-
+                        // Edit Logic in Vault Tab
                         ImGui::SameLine();
                         if (ImGui::Button("Edit")) {
                             editingIndex = i;
@@ -499,14 +499,38 @@ int main() {
 
                             currentTab = EDIT_MEDIA;
                         }
-
+                        
+                        // Delete Logic in Vault Tab
                         ImGui::SameLine();
                         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.2f, 0.2f, 1.0f));
                         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.3f, 0.3f, 1.0f));
                         if (ImGui::Button("Del")) {
-                            logActivity("Record Deleted: [" + currentLibrary[i].title + "] removed from the library.");
-                            currentLibrary.erase(currentLibrary.begin() + i);
-                            saveLibrary();
+                            ImGui::OpenPopup("Delete Confirmation");
+                        }
+                        ImGui::PopStyleColor(2);
+
+                        ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+                        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+                        if (ImGui::BeginPopupModal("Delete Confirmation", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+                            ImGui::Text("Delete \"%s\"?", currentLibrary[i].title.c_str());
+                            ImGui::Text("This action cannot be undone.");
+                            ImGui::Spacing(); ImGui::Separator(); ImGui::Spacing();
+
+                            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.2f, 0.2f, 1.0f));
+                            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.3f, 0.3f, 1.0f));
+                            if (ImGui::Button("Yes, Delete", ImVec2(120, 35))) {
+                                logActivity("Record Deleted: [" + currentLibrary[i].title + "] removed from the library.");
+                                currentLibrary.erase(currentLibrary.begin() + i);
+                                saveLibrary();
+                                ImGui::CloseCurrentPopup();
+                            }
+                            ImGui::PopStyleColor(2);
+
+                            ImGui::SameLine(); ImGui::Spacing(); ImGui::SameLine();
+                            if (ImGui::Button("Cancel", ImVec2(120, 35))) {
+                                ImGui::CloseCurrentPopup();
+                            }
+                            ImGui::EndPopup();
                         }
                         ImGui::PopStyleColor(2);
                         ImGui::PopID();
@@ -601,7 +625,7 @@ int main() {
 
                 int totalAnime = 0, totalManga = 0;
                 int epsWatched = 0, chsRead = 0;
-                int completedCount = 0, droppedCount = 0;
+                int completedCount = 0, droppedCount = 0, watchingCount = 0, readingCount = 0;
                 int totalRereads = 0;
 
                 for (size_t i = 0; i < currentLibrary.size(); i++) {
@@ -609,6 +633,8 @@ int main() {
                     else if (currentLibrary[i].type == "Manga") { totalManga++; chsRead += currentLibrary[i].currentProgress; }
                     if (currentLibrary[i].status == "Completed") completedCount++;
                     if (currentLibrary[i].status == "Dropped") droppedCount++;
+                    if (currentLibrary[i].status == "Watching") watchingCount++;
+                    if (currentLibrary[i].status == "Reading") readingCount++;
                     totalRereads += currentLibrary[i].rereadCount;
                 }
 
@@ -629,6 +655,8 @@ int main() {
                     ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Total Manga Tracked");  ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "%d", totalManga);
                     ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Completed Titles");     ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.4f,  1.0f,  0.6f, 1.0f), "%d", completedCount);
                     ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Dropped Titles");       ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(1.0f,  0.4f,  0.4f, 1.0f), "%d", droppedCount);
+                    ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Watching Titles");      ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.4f,  0.8f,  1.0f, 1.0f), "%d", watchingCount);
+                    ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Reading Titles");       ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.4f,  0.8f,  1.0f, 1.0f), "%d", readingCount);
                     ImGui::EndTable();
                 }
 
@@ -645,9 +673,67 @@ int main() {
                     ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Total Episodes Watched");    ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "%d", epsWatched);
                     ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Total Chapters Read");       ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "%d", chsRead);
                     ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Total Rewatches / Rereads"); ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(1.0f,  0.85f, 0.3f, 1.0f), "%d", totalRereads);
+                    ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Total Rewatches / Rereads"); ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(1.0f,  0.85f, 0.3f, 1.0f), "%d", totalRereads);
                     ImGui::EndTable();
                 }
+                
+// --- Compute additional insights ---
+                float avgRating = 0.0f;
+                int ratedCount = 0;
+                string mostWatchedTitle = "N/A", mostReadTitle = "N/A";
+                int mostWatchedEps = -1, mostReadChs = -1;
 
+                for (size_t i = 0; i < currentLibrary.size(); i++) {
+                    avgRating += currentLibrary[i].rating;
+                    ratedCount++;
+
+                    if (currentLibrary[i].type == "Anime" && currentLibrary[i].currentProgress > mostWatchedEps) {
+                        mostWatchedEps = currentLibrary[i].currentProgress;
+                        mostWatchedTitle = currentLibrary[i].title;
+                    }
+                    if (currentLibrary[i].type == "Manga" && currentLibrary[i].currentProgress > mostReadChs) {
+                        mostReadChs = currentLibrary[i].currentProgress;
+                        mostReadTitle = currentLibrary[i].title;
+                    }
+                }
+                if (ratedCount > 0) avgRating /= ratedCount;
+
+                float completionRate = (currentLibrary.size() > 0)
+                    ? (completedCount * 100.0f / currentLibrary.size()) : 0.0f;
+
+                ImGui::Spacing();
+                ImGui::Spacing();
+                ImGui::SetWindowFontScale(1.5f);
+                ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "Additional Insights");
+                ImGui::SetWindowFontScale(1.3f); ImGui::Spacing();
+
+                if (ImGui::BeginTable("StatsInsights", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp)) {
+                    ImGui::TableSetupColumn("Metric", ImGuiTableColumnFlags_WidthStretch, 1.5f);
+                    ImGui::TableSetupColumn("Value",  ImGuiTableColumnFlags_WidthStretch, 1.0f);
+                    ImGui::TableHeadersRow();
+
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(0); ImGui::Text("Average Rating");
+                    ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(1.0f, 0.85f, 0.3f, 1.0f),
+                        ratedCount > 0 ? "%.2f / 5" : "N/A", avgRating);
+
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(0); ImGui::Text("Completion Rate (Completed)");
+                    ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.6f, 1.0f),
+                        currentLibrary.size() > 0 ? "%.1f%%" : "N/A", completionRate);
+
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(0); ImGui::Text("Most Watched Anime");
+                    ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f),
+                        "%s", mostWatchedTitle.c_str());
+
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(0); ImGui::Text("Most Read Manga");
+                    ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f),
+                        "%s", mostReadTitle.c_str());
+
+                    ImGui::EndTable();
+                }
                 ImGui::PopStyleColor(4);
             }
 
