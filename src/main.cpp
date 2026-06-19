@@ -207,7 +207,7 @@ bool loginUser(string username, string password) {
         if (userDatabase[i].username == username && userDatabase[i].password == password) {
             loggedInUser = username;
             loadLibrary(); 
-           logActivity("User Login: " + loggedInUser + " signed in.");
+            logActivity("System Access: User logged in.");
             clearMessage();
             return true;
         }
@@ -245,7 +245,7 @@ int main() {
     style.WindowRounding = 8.0f;
     style.FrameRounding = 6.0f;
     style.GrabRounding = 6.0f;
-    style.Colors[ImGuiCol_WindowBg] = ImVec4(0.08f, 0.08f, 0.12f, 0.0f); //
+    style.Colors[ImGuiCol_WindowBg] = ImVec4(0.08f, 0.08f, 0.12f, 1.0f);
     style.Colors[ImGuiCol_Button] = ImVec4(0.18f, 0.35f, 0.58f, 1.0f);
     style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.24f, 0.45f, 0.75f, 1.0f);
     style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.12f, 0.25f, 0.45f, 1.0f);
@@ -331,17 +331,7 @@ int main() {
         // DASHBOARD (INVENTORY SYSTEM)
         // ---------------------------------------------------------------------
         else if (currentScreen == DASHBOARD) {
-            ImDrawList* bg = ImGui::GetBackgroundDrawList();
-
-            bg->AddRectFilledMultiColor(
-                ImVec2(0, 0),
-                ImVec2(io.DisplaySize.x, io.DisplaySize.y),
-                IM_COL32(20,  10,  60,  255),  // top-left     (deep purple)
-                IM_COL32(10,  30,  80,  255),  // top-right    (dark blue)
-                IM_COL32(10,  60,  80,  255),  // bottom-right (teal)
-                IM_COL32(40,  10,  60,  255)   // bottom-left  (violet)
-            );
-
+            
             // --- SIDEBAR MENU ---
             ImGui::SetNextWindowPos(ImVec2(0, 0));
             ImGui::SetNextWindowSize(ImVec2(250, io.DisplaySize.y));
@@ -366,7 +356,7 @@ int main() {
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.8f, 0.3f, 0.3f, 1.0f));
             if (ImGui::Button("Logout", ImVec2(230, 40))) {
-                logActivity("User Logout: " + loggedInUser + " signed out.");
+                logActivity("System Exit: User logged out.");
                 currentScreen = LOGIN; loggedInUser = ""; usernameInput[0]='\0'; passwordInput[0]='\0';
             }
             ImGui::PopStyleColor(2);
@@ -436,12 +426,12 @@ int main() {
                             
                             if (ImGui::Button(btnLabel.c_str(), ImVec2(120, 0))) {
                                 currentLibrary[i].currentProgress++;
-                                logActivity("Progress Updated: Advanced 1 unit in [" + currentLibrary[i].title + "]");
+                                logActivity("Order Processed: Consumed 1 unit of " + currentLibrary[i].title);
                                 
                                 if (currentLibrary[i].currentProgress == currentLibrary[i].totalProgress) {
                                     currentLibrary[i].status = "Completed";
                                     currentLibrary[i].dateFinished = getCurrentDate();
-                                    logActivity("Status Changed: [" + currentLibrary[i].title + "] marked as Completed.");
+                                    logActivity("Inventory Emptied: Completed " + currentLibrary[i].title);
                                 }
                                 saveLibrary();
                             }
@@ -451,7 +441,7 @@ int main() {
                                 currentLibrary[i].rereadCount++;
                                 currentLibrary[i].currentProgress = 0; 
                                 currentLibrary[i].status = (currentLibrary[i].type == "Anime") ? "Watching" : "Reading";
-                                logActivity("Record Reset: [" + currentLibrary[i].title + "] restarted for rewatch/reread.");
+                                logActivity("Restocked: " + currentLibrary[i].title);
                                 saveLibrary();
                             }
                         }
@@ -476,7 +466,7 @@ int main() {
                         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.2f, 0.2f, 1.0f));
                         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.3f, 0.3f, 1.0f));
                         if (ImGui::Button("Del")) {
-                            logActivity("Record Deleted: [" + currentLibrary[i].title + "] removed from the library.");
+                            logActivity("Deleted Record: " + currentLibrary[i].title);
                             currentLibrary.erase(currentLibrary.begin() + i);
                             saveLibrary();
                         }
@@ -537,7 +527,7 @@ int main() {
                             newMedia.rereadCount = 0;
                             
                             currentLibrary.push_back(newMedia);
-                            logActivity("Record Added: [" + newMedia.title + "] added to the library.");
+                            logActivity("Added New Product: " + newMedia.title);
                         } else {
                             currentLibrary[editingIndex].title = inputTitle;
                             currentLibrary[editingIndex].type = typeOptions[inputTypeIndex];
@@ -550,7 +540,7 @@ int main() {
                                 currentLibrary[editingIndex].dateFinished = getCurrentDate();
                             }
 
-                            logActivity("Record Updated: [" + string(inputTitle) + "] details have been modified.");
+                            logActivity("Updated Product Info: " + string(inputTitle));
                         }
                         saveLibrary();
                         currentTab = LIBRARY;
@@ -615,7 +605,7 @@ int main() {
             // TAB 4: ACTIVITY LOG 
             // ==========================================
             else if (currentTab == ACTIVITY_LOG) {
-                ImGui::Text("Activity Log — Record Management History");
+                ImGui::Text("Transaction Summary & Order Receipts");
                 ImGui::Separator(); ImGui::Spacing();
 
                 ImGui::BeginChild("LogScroll", ImVec2(0, 0), true);
