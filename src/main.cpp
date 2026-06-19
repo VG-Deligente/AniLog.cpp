@@ -343,10 +343,10 @@ int main() {
             bg->AddRectFilledMultiColor(
                 ImVec2(0, 0),
                 ImVec2(io.DisplaySize.x, io.DisplaySize.y),
-                IM_COL32(20,  10,  60,  255),  // top-left     (deep purple)
-                IM_COL32(10,  30,  80,  255),  // top-right    (dark blue)
-                IM_COL32(10,  60,  80,  255),  // bottom-right (teal)
-                IM_COL32(40,  10,  60,  255)   // bottom-left  (violet)
+                IM_COL32(30, 30, 30, 255),  // top-left     (dark gray)
+                IM_COL32(45, 45, 45, 255),  // top-right    (mid gray)
+                IM_COL32(40, 40, 40, 255),  // bottom-right (mid gray)
+                IM_COL32(25, 25, 25, 255)   // bottom-left  (darker gray)
             );
 
             // --- SIDEBAR MENU ---
@@ -380,6 +380,11 @@ int main() {
             // Confirmation modal
             ImVec2 center = ImGui::GetMainViewport()->GetCenter();
             ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+
+            ImGui::PushStyleColor(ImGuiCol_PopupBg,      ImVec4(0.22f, 0.22f, 0.22f, 0.95f));  // dark gray base
+            ImGui::PushStyleColor(ImGuiCol_Border,       ImVec4(0.40f, 0.40f, 0.40f, 0.8f));   // subtle gray border
+            ImGui::PushStyleColor(ImGuiCol_Separator,    ImVec4(0.40f, 0.40f, 0.40f, 0.6f));   // matching separator
+
             if (ImGui::BeginPopupModal("Logout Confirmation", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
                 ImGui::Text("Are you sure you want to logout?");
                 ImGui::Spacing();
@@ -404,7 +409,7 @@ int main() {
 
                 ImGui::EndPopup();
             }
-
+            ImGui::PopStyleColor(3);
             ImGui::End();
 
             // --- MAIN CONTENT AREA ---
@@ -806,20 +811,23 @@ int main() {
             // TAB 4: ACTIVITY LOG
             // ==========================================
             else if (currentTab == ACTIVITY_LOG) {
+                ImGui::SetWindowFontScale(1.5f); 
                 ImGui::Text("Activity Log - Record Management History");
                 ImGui::Separator(); ImGui::Spacing();
 
+                ImGui::SetWindowFontScale(1.4f); 
                 ImGui::BeginChild("LogScroll", ImVec2(0, 0), true);
 
                 ImVec4 dateColors[] = {
-                    ImVec4(0.18f, 0.35f, 0.58f, 0.4f),
-                    ImVec4(0.35f, 0.18f, 0.58f, 0.4f)
+                    ImVec4(0.20f, 0.20f, 0.20f, 0.6f),  // dark gray
+                    ImVec4(0.28f, 0.28f, 0.28f, 0.6f)   // slightly lighter gray
                 };
 
                 string lastDate = "";
                 int colorIndex = -1;
 
                 for (int i = activityLogs.size() - 1; i >= 0; i--) {
+                    ImGui::SetWindowFontScale(1.4f); 
                     string log = activityLogs[i];
                     string date = "";
                     if (log.size() > 12 && log[0] == '[')
