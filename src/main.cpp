@@ -353,7 +353,7 @@ int main() {
             ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "User: %s", loggedInUser.c_str());
             ImGui::Spacing(); ImGui::Separator(); ImGui::Spacing();
 
-            if (ImGui::Button("My Vault", ImVec2(230, 45))) currentTab = LIBRARY;
+            if (ImGui::Button("AniDex", ImVec2(230, 45))) currentTab = LIBRARY;
             ImGui::Spacing();
             if (ImGui::Button("Add Record", ImVec2(230, 45))) { currentTab = ADD_MEDIA; resetForm(); }
             ImGui::Spacing();
@@ -404,7 +404,7 @@ int main() {
             ImGui::SetNextWindowPos(ImVec2(250, 0));
             ImGui::SetNextWindowSize(ImVec2(io.DisplaySize.x - 250, io.DisplaySize.y));
             ImGui::Begin("Content", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
-            ImGui::SetWindowFontScale(1.3f);
+            ImGui::SetWindowFontScale(1.5f); // originally 1.3f, increased for better visibility
 
             // ==========================================
             // TAB 1: LIBRARY
@@ -466,20 +466,12 @@ int main() {
                                 currentLibrary[i].currentProgress++;
                                 logActivity("Progress Updated: Advanced 1 unit in [" + currentLibrary[i].title + "]");
                                 
+                                // WILL BE MOVED TO ANOTHER TABLE IN THE VAULT TAB
                                 if (currentLibrary[i].currentProgress == currentLibrary[i].totalProgress) {
                                     currentLibrary[i].status = "Completed";
                                     currentLibrary[i].dateFinished = getCurrentDate();
                                     logActivity("Status Changed: [" + currentLibrary[i].title + "] marked as Completed.");
                                 }
-                                saveLibrary();
-                            }
-                        } else {
-                            string rBtnLabel = (currentLibrary[i].type == "Anime") ? "Rewatch" : "Reread";
-                            if (ImGui::Button(rBtnLabel.c_str(), ImVec2(120, 0))) {
-                                currentLibrary[i].rereadCount++;
-                                currentLibrary[i].currentProgress = 0; 
-                                currentLibrary[i].status = (currentLibrary[i].type == "Anime") ? "Watching" : "Reading";
-                                logActivity("Record Reset: [" + currentLibrary[i].title + "] restarted for rewatch/reread.");
                                 saveLibrary();
                             }
                         }
@@ -532,12 +524,54 @@ int main() {
                             }
                             ImGui::EndPopup();
                         }
-                        ImGui::PopStyleColor(2);
                         ImGui::PopID();
                     }
                     ImGui::EndTable();
                 }
-            }
+                    ImGui::Spacing();
+                    ImGui::Spacing();
+                    ImGui::Spacing();
+                    ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.6f, 1.0f), "Completed Media Records");
+                    ImGui::SetWindowFontScale(1.3f);
+                    ImGui::Spacing();
+                    if (ImGui::BeginTable("Completed Content", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp)) {
+                        ImGui::TableSetupColumn("Title", ImGuiTableColumnFlags_WidthStretch, 2.5f);
+                        ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthStretch, 1.0f);
+                        ImGui::TableSetupColumn("Status", ImGuiTableColumnFlags_WidthStretch, 1.5f);
+                        ImGui::TableSetupColumn("Rating", ImGuiTableColumnFlags_WidthStretch, 0.8f);
+                        ImGui::TableSetupColumn("Actions", ImGuiTableColumnFlags_WidthStretch, 2.5f);
+                        ImGui::TableHeadersRow();
+                        for (int i = 0; i < currentLibrary.size(); i++) {
+                            if (currentLibrary[i].status != "Completed") continue;
+                            if (currentFilterIndex == 1 && currentLibrary[i].type != "Anime") continue;
+                            if (currentFilterIndex == 2 && currentLibrary[i].type != "Manga") continue;
+                            if (searchStr != "" && currentLibrary[i].title.find(searchStr) == string::npos) continue;
+                           
+                            ImGui::PushID(100 + i);
+                            ImGui::TableNextRow();
+                            ImGui::TableSetColumnIndex(0); ImGui::TextWrapped("%s", currentLibrary[i].title.c_str());
+                            ImGui::TableSetColumnIndex(1); ImGui::Text("%s", currentLibrary[i].type.c_str());
+                            ImGui::TableSetColumnIndex(2); ImGui::Text("%s", currentLibrary[i].status.c_str());
+                            ImGui::TableSetColumnIndex(3); ImGui::Text("%d/5", currentLibrary[i].rating);
+                            ImGui::TableSetColumnIndex(4);
+                            
+
+                            string rBtnLabel = (currentLibrary[i].type == "Anime") ? "Rewatch" : "Reread";
+                                if (ImGui::Button(rBtnLabel.c_str(), ImVec2(120, 0))) {
+                                    currentLibrary[i].rereadCount++;
+                                    currentLibrary[i].currentProgress = 0; 
+                                    currentLibrary[i].status = (currentLibrary[i].type == "Anime") ? "Watching" : "Reading";
+                                    logActivity("Record Reset: [" + currentLibrary[i].title + "] restarted for rewatch/reread.");
+                                    saveLibrary();
+                                }
+                            
+                            ImGui::PopID();
+                        
+                        }
+                    ImGui::EndTable();
+                    }
+                }
+            
             
             // ==========================================
             // TAB 2: ADD / EDIT MEDIA 
@@ -627,6 +661,7 @@ int main() {
                 int epsWatched = 0, chsRead = 0;
                 int completedCount = 0, droppedCount = 0, watchingCount = 0, readingCount = 0;
                 int totalRereads = 0;
+                
 
                 for (size_t i = 0; i < currentLibrary.size(); i++) {
                     if (currentLibrary[i].type == "Anime") { totalAnime++; epsWatched += currentLibrary[i].currentProgress; }
@@ -638,46 +673,8 @@ int main() {
                     totalRereads += currentLibrary[i].rereadCount;
                 }
 
-                ImGui::PushStyleColor(ImGuiCol_TableRowBg,       ImVec4(0.10f, 0.10f, 0.20f, 0.8f));
-                ImGui::PushStyleColor(ImGuiCol_TableRowBgAlt,    ImVec4(0.15f, 0.15f, 0.28f, 0.8f));
-                ImGui::PushStyleColor(ImGuiCol_TableBorderStrong,ImVec4(0.35f, 0.65f, 1.0f,  0.5f));
-                ImGui::PushStyleColor(ImGuiCol_TableBorderLight, ImVec4(0.35f, 0.65f, 1.0f,  0.3f));
 
-                ImGui::SetWindowFontScale(1.5f);
-                ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.6f, 1.0f), "Overall Vault Status");
-                ImGui::SetWindowFontScale(1.3f); ImGui::Spacing();
-
-                if (ImGui::BeginTable("StatsVault", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp)) {
-                    ImGui::TableSetupColumn("Category", ImGuiTableColumnFlags_WidthStretch, 1.5f);
-                    ImGui::TableSetupColumn("Count",    ImGuiTableColumnFlags_WidthStretch, 1.0f);
-                    ImGui::TableHeadersRow();
-                    ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Total Anime Tracked");  ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "%d", totalAnime);
-                    ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Total Manga Tracked");  ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "%d", totalManga);
-                    ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Completed Titles");     ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.4f,  1.0f,  0.6f, 1.0f), "%d", completedCount);
-                    ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Dropped Titles");       ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(1.0f,  0.4f,  0.4f, 1.0f), "%d", droppedCount);
-                    ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Watching Titles");      ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.4f,  0.8f,  1.0f, 1.0f), "%d", watchingCount);
-                    ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Reading Titles");       ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.4f,  0.8f,  1.0f, 1.0f), "%d", readingCount);
-                    ImGui::EndTable();
-                }
-
-                ImGui::Spacing(); 
-                ImGui::Spacing();
-                ImGui::SetWindowFontScale(1.5f);
-                ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "Consumption Metrics");
-                ImGui::SetWindowFontScale(1.3f); ImGui::Spacing();
-
-                if (ImGui::BeginTable("StatsMetrics", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp)) {
-                    ImGui::TableSetupColumn("Metric", ImGuiTableColumnFlags_WidthStretch, 1.5f);
-                    ImGui::TableSetupColumn("Value",  ImGuiTableColumnFlags_WidthStretch, 1.0f);
-                    ImGui::TableHeadersRow();
-                    ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Total Episodes Watched");    ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "%d", epsWatched);
-                    ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Total Chapters Read");       ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "%d", chsRead);
-                    ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Total Rewatches / Rereads"); ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(1.0f,  0.85f, 0.3f, 1.0f), "%d", totalRereads);
-                    ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Total Rewatches / Rereads"); ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(1.0f,  0.85f, 0.3f, 1.0f), "%d", totalRereads);
-                    ImGui::EndTable();
-                }
-                
-// --- Compute additional insights ---
+                // ── ADD THIS BLOCK after the for loop ──
                 float avgRating = 0.0f;
                 int ratedCount = 0;
                 string mostWatchedTitle = "N/A", mostReadTitle = "N/A";
@@ -701,37 +698,79 @@ int main() {
                 float completionRate = (currentLibrary.size() > 0)
                     ? (completedCount * 100.0f / currentLibrary.size()) : 0.0f;
 
-                ImGui::Spacing();
-                ImGui::Spacing();
-                ImGui::SetWindowFontScale(1.5f);
-                ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "Additional Insights");
+                ImGui::PushStyleColor(ImGuiCol_TableRowBg,       ImVec4(0.10f, 0.10f, 0.20f, 0.8f));
+                ImGui::PushStyleColor(ImGuiCol_TableRowBgAlt,    ImVec4(0.15f, 0.15f, 0.28f, 0.8f));
+                ImGui::PushStyleColor(ImGuiCol_TableBorderStrong,ImVec4(0.35f, 0.65f, 1.0f,  0.5f));
+                ImGui::PushStyleColor(ImGuiCol_TableBorderLight, ImVec4(0.35f, 0.65f, 1.0f,  0.3f));
+
+                
+                                // ── SECTION 1: Overall Vault Status ──
+                ImGui::SetWindowFontScale(1.4f);
+                ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.6f, 1.0f), "Overall Vault Status");
                 ImGui::SetWindowFontScale(1.3f); ImGui::Spacing();
 
-                if (ImGui::BeginTable("StatsInsights", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp)) {
-                    ImGui::TableSetupColumn("Metric", ImGuiTableColumnFlags_WidthStretch, 1.5f);
-                    ImGui::TableSetupColumn("Value",  ImGuiTableColumnFlags_WidthStretch, 1.0f);
+                if (ImGui::BeginTable("StatsVault", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp)) {
+                    ImGui::TableSetupColumn("Anime Tracked",   ImGuiTableColumnFlags_WidthStretch, 1.0f);
+                    ImGui::TableSetupColumn("Manga Tracked",   ImGuiTableColumnFlags_WidthStretch, 1.0f);
+                    ImGui::TableSetupColumn("Watching",        ImGuiTableColumnFlags_WidthStretch, 1.0f);
+                    ImGui::TableSetupColumn("Reading",         ImGuiTableColumnFlags_WidthStretch, 1.0f);
+                    ImGui::TableSetupColumn("Completed",       ImGuiTableColumnFlags_WidthStretch, 1.0f);
+                    ImGui::TableSetupColumn("Dropped",         ImGuiTableColumnFlags_WidthStretch, 1.0f);
                     ImGui::TableHeadersRow();
 
                     ImGui::TableNextRow();
-                    ImGui::TableSetColumnIndex(0); ImGui::Text("Average Rating");
-                    ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(1.0f, 0.85f, 0.3f, 1.0f),
-                        ratedCount > 0 ? "%.2f / 5" : "N/A", avgRating);
+                    ImGui::TableSetColumnIndex(0); ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "%d", totalAnime);
+                    ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "%d", totalManga);
+                    ImGui::TableSetColumnIndex(2); ImGui::TextColored(ImVec4(0.4f,  0.8f,  1.0f, 1.0f), "%d", watchingCount);
+                    ImGui::TableSetColumnIndex(3); ImGui::TextColored(ImVec4(0.4f,  0.8f,  1.0f, 1.0f), "%d", readingCount);
+                    ImGui::TableSetColumnIndex(4); ImGui::TextColored(ImVec4(0.4f,  1.0f,  0.6f, 1.0f), "%d", completedCount);
+                    ImGui::TableSetColumnIndex(5); ImGui::TextColored(ImVec4(1.0f,  0.4f,  0.4f, 1.0f), "%d", droppedCount);
+                    ImGui::EndTable();
+                }
+
+                ImGui::Spacing(); ImGui::Separator(); ImGui::Spacing();
+
+                // ── SECTION 2: Consumption Metrics ──
+                ImGui::SetWindowFontScale(1.4f);
+                ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "Consumption Metrics");
+                ImGui::SetWindowFontScale(1.3f); ImGui::Spacing();
+
+                if (ImGui::BeginTable("StatsMetrics", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp)) {
+                    ImGui::TableSetupColumn("Episodes Watched", ImGuiTableColumnFlags_WidthStretch, 1.0f);
+                    ImGui::TableSetupColumn("Chapters Read",    ImGuiTableColumnFlags_WidthStretch, 1.0f);
+                    ImGui::TableSetupColumn("Rewatches/Rereads",ImGuiTableColumnFlags_WidthStretch, 1.0f);
+                    ImGui::TableHeadersRow();
 
                     ImGui::TableNextRow();
-                    ImGui::TableSetColumnIndex(0); ImGui::Text("Completion Rate (Completed)");
+                    ImGui::TableSetColumnIndex(0); ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "%d", epsWatched);
+                    ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "%d", chsRead);
+                    ImGui::TableSetColumnIndex(2); ImGui::TextColored(ImVec4(1.0f,  0.85f, 0.3f, 1.0f), "%d", totalRereads);
+                    ImGui::EndTable();
+                }
+
+                ImGui::Spacing(); ImGui::Separator(); ImGui::Spacing();
+
+                // ── SECTION 3: Additional Insights ──
+                ImGui::SetWindowFontScale(1.4f);
+                ImGui::TextColored(ImVec4(1.0f, 0.75f, 0.3f, 1.0f), "Additional Insights");
+                ImGui::SetWindowFontScale(1.3f); ImGui::Spacing();
+
+                if (ImGui::BeginTable("StatsInsights", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp)) {
+                    ImGui::TableSetupColumn("Avg Rating",        ImGuiTableColumnFlags_WidthStretch, 1.0f);
+                    ImGui::TableSetupColumn("Completion Rate",   ImGuiTableColumnFlags_WidthStretch, 1.0f);
+                    ImGui::TableSetupColumn("Most Watched Anime",ImGuiTableColumnFlags_WidthStretch, 1.5f);
+                    ImGui::TableSetupColumn("Most Read Manga",   ImGuiTableColumnFlags_WidthStretch, 1.5f);
+                    ImGui::TableHeadersRow();
+
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(0); ImGui::TextColored(ImVec4(1.0f, 0.85f, 0.3f, 1.0f),
+                        ratedCount > 0 ? "%.2f / 5" : "N/A", avgRating);
                     ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.6f, 1.0f),
                         currentLibrary.size() > 0 ? "%.1f%%" : "N/A", completionRate);
-
-                    ImGui::TableNextRow();
-                    ImGui::TableSetColumnIndex(0); ImGui::Text("Most Watched Anime");
-                    ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f),
+                    ImGui::TableSetColumnIndex(2); ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f),
                         "%s", mostWatchedTitle.c_str());
-
-                    ImGui::TableNextRow();
-                    ImGui::TableSetColumnIndex(0); ImGui::Text("Most Read Manga");
-                    ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f),
+                    ImGui::TableSetColumnIndex(3); ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f),
                         "%s", mostReadTitle.c_str());
-
                     ImGui::EndTable();
                 }
                 ImGui::PopStyleColor(4);
