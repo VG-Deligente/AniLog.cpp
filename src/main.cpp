@@ -13,7 +13,7 @@
 //    2. Show a Login / Signup screen.
 //    3. After login, load that user's library from "<username>_library.txt"
 //       and their activity history from "<username>_logs.txt".
-//    4. Enter the main render loop - every frame we clear the screen,
+//    4. Enter the main render loop — every frame we clear the screen,
 //       draw all ImGui windows, and swap the buffer to the display.
 //    5. On logout or window close, all data is already saved to disk
 //       (we save immediately after every change).
@@ -34,7 +34,7 @@
 using namespace std;
 
 // =============================================================================
-//  ENUMS - Named constants for program states so we avoid magic numbers
+//  ENUMS — Named constants for program states so we avoid magic numbers
 // =============================================================================
 
 // Which screen is currently displayed to the user
@@ -44,7 +44,7 @@ enum Screen { LOGIN, SIGNUP, DASHBOARD };
 enum DashboardTab { LIBRARY, ADD_MEDIA, EDIT_MEDIA, ACTIVITY_LOG, STATISTICS };
 
 // =============================================================================
-//  DATA STRUCTURES - Blueprints for the data we store
+//  DATA STRUCTURES — Blueprints for the data we store
 // =============================================================================
 
 // Holds one registered account
@@ -59,7 +59,7 @@ struct MediaRecord {
     string type;            // "Anime" or "Manga"
     int    currentProgress; // Episodes watched or chapters read so far
     int    totalProgress;   // Total episodes or chapters in the series
-    int    rating;          // User score, 1-5
+    int    rating;          // User score, 1–5
     string status;          // "Watching", "Reading", "Completed", or "Dropped"
     string dateStarted;     // Date the user first added/started the record (YYYY-MM-DD)
     string dateFinished;    // Date it was marked Completed; empty if not yet done
@@ -67,7 +67,7 @@ struct MediaRecord {
 };
 
 // =============================================================================
-//  GLOBAL STATE - Variables that are alive for the entire program lifetime
+//  GLOBAL STATE — Variables that are alive for the entire program lifetime
 // =============================================================================
 
 // Data collections
@@ -84,34 +84,34 @@ bool   isAuthError  = false;// true = show message in red, false = show in green
 Screen       currentScreen = LOGIN;
 DashboardTab currentTab    = LIBRARY;
 
-// -- Add / Edit form input buffers --
+// ── Add / Edit form input buffers ──
 // ImGui writes directly into these char arrays and int variables
 char inputTitle[128] = "";
 int  inputTypeIndex  = 0;   // 0 = Anime, 1 = Manga
 int  inputCurrent    = 0;   // Current progress value in the form
 int  inputTotal      = 12;  // Total episodes/chapters value in the form
-int  inputRating     = 3;   // Rating slider value (1-5)
+int  inputRating     = 3;   // Rating slider value (1–5)
 int  inputStatusIndex= 0;   // 0 = Watching/Reading, 1 = Completed, 2 = Dropped
 int  editingIndex    = -1;  // Index into currentLibrary of the record being edited (-1 = none)
 
-// -- Library filter / search --
+// ── Library filter / search ──
 char searchBuffer[128]  = "";
 int  currentFilterIndex = 0; // 0 = All, 1 = Anime only, 2 = Manga only
 
-// -- UI state flags --
+// ── UI state flags ──
 bool pendingNavAway    = false; // true when user clicked a sidebar tab mid-edit (triggers confirmation)
 DashboardTab pendingTab = LIBRARY; // The tab they were trying to switch to
 bool showRewatchConfirm = false;   // true when Rewatch/Reread confirmation popup should open
 int  rewatchTargetIndex = -1;      // Index of the record the user wants to rewatch/reread
 
-// -- String lookup tables used by dropdown menus --
+// ── String lookup tables used by dropdown menus ──
 const char* typeOptions[]       = { "Anime", "Manga" };
 const char* animeStatusOptions[]= { "Watching", "Completed", "Dropped" };
 const char* mangaStatusOptions[]= { "Reading",  "Completed", "Dropped" };
 const char* filterOptions[]     = { "All Media", "Anime Only", "Manga Only" };
 
 // =============================================================================
-//  UTILITY FUNCTIONS - Small helpers used throughout the program
+//  UTILITY FUNCTIONS — Small helpers used throughout the program
 // =============================================================================
 
 // Returns today's date as a "YYYY-MM-DD" string using the system clock
@@ -140,7 +140,7 @@ string trimStr(const string& s) {
     return s.substr(start, end - start + 1);
 }
 
-// Writes an activity log entry - saves it in memory AND appends it to the log file
+// Writes an activity log entry — saves it in memory AND appends it to the log file
 void logActivity(const string& action) {
     string entry = "[" + getCurrentDate() + "] " + action;
     activityLogs.push_back(entry);
@@ -153,7 +153,7 @@ void logActivity(const string& action) {
 }
 
 // Builds a human-readable "diff" string describing what changed between two records.
-// Used by the Edit form to produce detailed activity log entries (e.g., "Rating 3->5").
+// Used by the Edit form to produce detailed activity log entries (e.g., "Rating 3→5").
 string buildChangeSummary(const MediaRecord& before, const MediaRecord& after) {
     string changes = "";
 
@@ -186,7 +186,7 @@ string buildChangeSummary(const MediaRecord& before, const MediaRecord& after) {
 }
 
 // =============================================================================
-//  SORTING COMPARATORS - Passed to std::sort to reorder the library table
+//  SORTING COMPARATORS — Passed to std::sort to reorder the library table
 // =============================================================================
 
 bool sortTitleAsc  (const MediaRecord& a, const MediaRecord& b) { return a.title < b.title; }
@@ -200,7 +200,7 @@ bool sortProgressDesc(const MediaRecord& a, const MediaRecord& b) {
 }
 
 // =============================================================================
-//  FILE HANDLING - Reading and writing persistent data to disk
+//  FILE HANDLING — Reading and writing persistent data to disk
 // =============================================================================
 
 // Loads all user accounts from "users.txt" into the userDatabase vector.
@@ -303,7 +303,7 @@ void saveLibrary() {
 }
 
 // =============================================================================
-//  AUTHENTICATION - Login, signup, and session helpers
+//  AUTHENTICATION — Login, signup, and session helpers
 // =============================================================================
 
 // Clears the auth message banner shown below the login/signup fields
@@ -383,11 +383,11 @@ bool titleExists(const string& title, int excludeIndex = -1) {
 }
 
 // =============================================================================
-//  MAIN PROGRAM - Window creation, ImGui setup, and the render loop
+//  MAIN PROGRAM — Window creation, ImGui setup, and the render loop
 // =============================================================================
 
 int main() {
-    // -- Window and graphics setup --
+    // ── Window and graphics setup ──
     if (!glfwInit()) return 1;
     GLFWwindow* window = glfwCreateWindow(1280, 720, "AniLog - Media Tracker", NULL, NULL);
     if (!window) { glfwTerminate(); return 1; }
@@ -398,7 +398,7 @@ int main() {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
 
-    // -- Global ImGui visual style --
+    // ── Global ImGui visual style ──
     // We use dark mode and override specific colors to match AniLog's theme.
     ImGui::StyleColorsDark();
     ImGuiStyle& style = ImGui::GetStyle();
@@ -440,7 +440,7 @@ int main() {
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents(); // Process keyboard, mouse, window events from the OS
 
-        // Start a new ImGui frame - must happen before any ImGui:: calls
+        // Start a new ImGui frame — must happen before any ImGui:: calls
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
@@ -450,7 +450,7 @@ int main() {
         // =====================================================================
         //  LOGIN / SIGNUP SCREEN
         //  Shown when no user is logged in. Handles both screens in one block
-        //  since they share the same layout - only labels and button actions differ.
+        //  since they share the same layout — only labels and button actions differ.
         // =====================================================================
         if (currentScreen == LOGIN || currentScreen == SIGNUP) {
             float winW  = 600.0f, winH = 640.0f, elemW = 480.0f;
@@ -551,7 +551,7 @@ int main() {
         // =====================================================================
         else if (currentScreen == DASHBOARD) {
 
-            // -- SIDEBAR --
+            // ── SIDEBAR ──
             // Fixed 250px panel on the left with navigation buttons.
             // Active tab button is highlighted in a brighter blue.
             ImGui::SetNextWindowPos(ImVec2(0, 0));
@@ -578,7 +578,7 @@ int main() {
                     bool formHasData = (currentTab == ADD_MEDIA || currentTab == EDIT_MEDIA)
                                    && string(inputTitle) != "";
                     if (formHasData && tab != currentTab) {
-                        // User is mid-edit - ask for confirmation before discarding
+                        // User is mid-edit — ask for confirmation before discarding
                         pendingNavAway = true;
                         pendingTab     = tab;
                         ImGui::OpenPopup("Unsaved Changes");
@@ -596,7 +596,7 @@ int main() {
             sidebarBtn("Statistics",  STATISTICS);
             sidebarBtn("Activity Log",ACTIVITY_LOG);
 
-            // -- Unsaved Changes Popup --
+            // ── Unsaved Changes Popup ──
             // Shown when user tries to navigate away from Add/Edit with a non-empty title.
             ImVec2 center = ImGui::GetMainViewport()->GetCenter();
             ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
@@ -620,7 +620,8 @@ int main() {
                 }
                 ImGui::EndPopup();
             }
-            // -- Logout button (pinned to bottom of sidebar) --
+
+            // ── Logout button (pinned to bottom of sidebar) ──
             ImGui::SetCursorPosY(io.DisplaySize.y - 70);
             ImGui::Separator(); ImGui::Spacing();
             ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
@@ -657,7 +658,7 @@ int main() {
 
             ImGui::End(); // End sidebar
 
-            // -- MAIN CONTENT AREA --
+            // ── MAIN CONTENT AREA ──
             // Takes up the rest of the screen to the right of the sidebar.
             ImGui::SetNextWindowPos(ImVec2(250, 0));
             ImGui::SetNextWindowSize(ImVec2(io.DisplaySize.x - 250, io.DisplaySize.y));
@@ -673,10 +674,10 @@ int main() {
             //  Shows Dropped records in a third table at the bottom.
             // =================================================================
             if (currentTab == LIBRARY) {
-                ImGui::Text("AniDex - My Media Vault");
+                ImGui::Text("AniDex — My Media Vault");
                 ImGui::Separator(); ImGui::Spacing();
 
-                // -- Search and Filter bar --
+                // ── Search and Filter bar ──
                 ImGui::SetNextItemWidth(300);
                 ImGui::InputTextWithHint("##search", "Search title...", searchBuffer, IM_ARRAYSIZE(searchBuffer));
                 string searchStr = toLowerStr(searchBuffer); // lowercase for case-insensitive matching
@@ -703,7 +704,7 @@ int main() {
                                            | ImGuiTableFlags_RowBg
                                            | ImGuiTableFlags_SizingStretchProp;
 
-                // -- ACTIVE MEDIA TABLE (Watching / Reading) --
+                // ── ACTIVE MEDIA TABLE (Watching / Reading) ──
                 // Shows every record that is NOT Completed and NOT Dropped.
                 // Excludes Completed/Dropped so they appear only in their own sections below.
                 ImGui::SetWindowFontScale(1.4f);
@@ -737,7 +738,7 @@ int main() {
                     int deleteTarget = -1; // We defer deletion to avoid modifying the vector mid-loop
 
                     for (int i = 0; i < (int)currentLibrary.size(); i++) {
-                        // Skip completed and dropped - they belong in the sections below
+                        // Skip completed and dropped — they belong in the sections below
                         if (currentLibrary[i].status == "Completed") continue;
                         if (currentLibrary[i].status == "Dropped")   continue;
                         // Apply type filter
@@ -777,7 +778,7 @@ int main() {
                             ImGui::SameLine();
                         }
 
-                        // Edit button - pre-fills the Edit form with this record's data
+                        // Edit button — pre-fills the Edit form with this record's data
                         if (ImGui::Button("Edit")) {
                             editingIndex   = i;
                             snprintf(inputTitle, sizeof(inputTitle), "%s", currentLibrary[i].title.c_str());
@@ -792,7 +793,7 @@ int main() {
                         }
                         ImGui::SameLine();
 
-                        // Delete button - opens confirmation popup
+                        // Delete button — opens confirmation popup
                         ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.7f, 0.2f, 0.2f, 1.0f));
                         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.3f, 0.3f, 1.0f));
                         string delPopupId = "DelConf_Active_" + to_string(i);
@@ -833,7 +834,7 @@ int main() {
 
                 ImGui::Spacing(); ImGui::Spacing();
 
-                // -- COMPLETED MEDIA TABLE --
+                // ── COMPLETED MEDIA TABLE ──
                 // Only shows records with status == "Completed".
                 // Columns match the active table proportions.
                 // Adds a Date Finished column since that data is now tracked.
@@ -875,12 +876,12 @@ int main() {
                         ImGui::TableSetColumnIndex(0); ImGui::TextWrapped("%s", currentLibrary[i].title.c_str());
                         ImGui::TableSetColumnIndex(1); ImGui::Text("%s", currentLibrary[i].type.c_str());
                         ImGui::TableSetColumnIndex(2);
-                        ImGui::Text("%s", currentLibrary[i].dateFinished.empty() ? "-" : currentLibrary[i].dateFinished.c_str());
+                        ImGui::Text("%s", currentLibrary[i].dateFinished.empty() ? "—" : currentLibrary[i].dateFinished.c_str());
                         ImGui::TableSetColumnIndex(3); ImGui::Text("%d/5", currentLibrary[i].rating);
                         ImGui::TableSetColumnIndex(4); ImGui::Text("%d", currentLibrary[i].rereadCount);
                         ImGui::TableSetColumnIndex(5);
 
-                        // Rewatch / Reread button - prompts confirmation before resetting progress
+                        // Rewatch / Reread button — prompts confirmation before resetting progress
                         string rBtnLabel = (currentLibrary[i].type == "Anime") ? "Rewatch" : "Reread";
                         string rPopupId  = "RewatchConf_" + to_string(i);
                         if (ImGui::Button(rBtnLabel.c_str(), ImVec2(100, 0)))
@@ -929,7 +930,7 @@ int main() {
 
                 ImGui::Spacing(); ImGui::Spacing();
 
-                // -- DROPPED MEDIA TABLE --
+                // ── DROPPED MEDIA TABLE ──
                 // Shows records the user gave up on.
                 // Includes a "Resume" button to move them back to Active.
                 ImGui::SetWindowFontScale(1.4f);
@@ -974,10 +975,10 @@ int main() {
                         ImGui::TableSetColumnIndex(2); ImGui::Text("%d / %d", currentLibrary[i].currentProgress, currentLibrary[i].totalProgress);
                         ImGui::TableSetColumnIndex(3); ImGui::Text("%d/5", currentLibrary[i].rating);
                         ImGui::TableSetColumnIndex(4);
-                        ImGui::Text("%s", currentLibrary[i].dateStarted.empty() ? "-" : currentLibrary[i].dateStarted.c_str());
+                        ImGui::Text("%s", currentLibrary[i].dateStarted.empty() ? "—" : currentLibrary[i].dateStarted.c_str());
                         ImGui::TableSetColumnIndex(5);
 
-                        // Resume button - moves the record back to Watching/Reading
+                        // Resume button — moves the record back to Watching/Reading
                         if (ImGui::Button("Resume", ImVec2(80, 0))) {
                             currentLibrary[i].status = (currentLibrary[i].type == "Anime") ? "Watching" : "Reading";
                             logActivity("Status Changed: [" + currentLibrary[i].title + "] resumed from Dropped.");
@@ -1040,13 +1041,13 @@ int main() {
             // =================================================================
             //  TAB 2: ADD / EDIT MEDIA
             //  A form for creating a new record or modifying an existing one.
-            //  Both share the same UI - the mode (Add vs Edit) determines behavior on Save.
+            //  Both share the same UI — the mode (Add vs Edit) determines behavior on Save.
             // =================================================================
             else if (currentTab == ADD_MEDIA || currentTab == EDIT_MEDIA) {
                 ImGui::Text(currentTab == ADD_MEDIA ? "Add New Record" : "Edit Record");
                 ImGui::Separator(); ImGui::Spacing();
 
-                // -- Inline validation message --
+                // ── Inline validation message ──
                 // We build this each frame so it always reflects the current form state.
                 string validationMsg = "";
 
@@ -1077,7 +1078,7 @@ int main() {
 
                 ImGui::Spacing();
 
-                // Current progress input - label changes based on selected type
+                // Current progress input — label changes based on selected type
                 ImGui::SetCursorPosX(20);
                 ImGui::SetNextItemWidth(180);
                 ImGui::InputInt(inputTypeIndex == 0 ? "Current Progress (Episodes)" : "Current Progress (Chapters)", &inputCurrent);
@@ -1094,13 +1095,13 @@ int main() {
                 // Warn the user if progress and total look swapped
                 if (inputCurrent == inputTotal && inputTotal > 0)
                     ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.6f, 1.0f),
-                        "Progress matches total - saving will mark this as Completed.");
+                        "Progress matches total — saving will mark this as Completed.");
 
                 ImGui::Spacing();
 
                 ImGui::SetCursorPosX(20);
                 ImGui::SetNextItemWidth(200);
-                ImGui::SliderInt("Rating (1-5)", &inputRating, 1, 5);
+                ImGui::SliderInt("Rating (1–5)", &inputRating, 1, 5);
 
                 ImGui::SetCursorPosX(20);
                 ImGui::SetNextItemWidth(220);
@@ -1109,7 +1110,7 @@ int main() {
 
                 ImGui::Spacing(); ImGui::Spacing();
 
-                // -- Save and Cancel buttons --
+                // ── Save and Cancel buttons ──
                 bool canSave = !titleBlank && !titleDupe;
 
                 if (!canSave) {
@@ -1166,13 +1167,13 @@ int main() {
                                 if (currentLibrary[editingIndex].dateFinished.empty())
                                     currentLibrary[editingIndex].dateFinished = getCurrentDate();
                             } else {
-                                // Progress no longer matches total - record can't be Completed
+                                // Progress no longer matches total — record can't be Completed
                                 currentLibrary[editingIndex].dateFinished = "";
                             }
 
                             // Build and log a detailed change summary
                             string changes = buildChangeSummary(before, currentLibrary[editingIndex]);
-                            logActivity("Record Updated: [" + titleStr + "] - " + changes);
+                            logActivity("Record Updated: [" + titleStr + "] — " + changes);
                         }
                     }
                     saveLibrary();
@@ -1198,7 +1199,7 @@ int main() {
                 ImGui::Text("Statistics");
                 ImGui::Separator(); ImGui::Spacing();
 
-                // -- Aggregate all stats in a single pass over the library --
+                // ── Aggregate all stats in a single pass over the library ──
                 int totalAnime = 0, totalManga = 0;
                 int epsWatched = 0, chsRead = 0;
                 int completedCnt = 0, droppedCnt = 0, watchingCnt = 0, readingCnt = 0;
@@ -1248,7 +1249,7 @@ int main() {
                                           | ImGuiTableFlags_RowBg
                                           | ImGuiTableFlags_SizingStretchProp;
 
-                // -- SECTION 1: Overall Vault Status --
+                // ── SECTION 1: Overall Vault Status ──
                 ImGui::SetWindowFontScale(1.4f);
                 ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.6f, 1.0f), "Overall Vault Status");
                 ImGui::SetWindowFontScale(1.4f);
@@ -1278,7 +1279,7 @@ int main() {
 
                 ImGui::Spacing(); ImGui::Spacing();
 
-                // -- SECTION 2: Progress Metrics --
+                // ── SECTION 2: Progress Metrics ──
                 ImGui::SetWindowFontScale(1.4f);
                 ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "Progress Metrics");
                 ImGui::SetWindowFontScale(1.4f);
@@ -1305,8 +1306,8 @@ int main() {
 
                 ImGui::Spacing(); ImGui::Spacing();
 
-                // -- SECTION 3: Insights --
-                // Notable records - most-watched, most-read, highest-rated
+                // ── SECTION 3: Insights ──
+                // Notable records — most-watched, most-read, highest-rated
                 ImGui::SetWindowFontScale(1.4f);
                 ImGui::TextColored(ImVec4(1.0f, 0.75f, 0.3f, 1.0f), "Insights");
                 ImGui::SetWindowFontScale(1.4f);
@@ -1377,7 +1378,7 @@ int main() {
                             lastDate = date;
                             if (i < (int)activityLogs.size() - 1)
                                 ImGui::Spacing();
-                            string divider = "---- " + (date.empty() ? "Unknown Date" : date) + " ----";
+                            string divider = "──── " + (date.empty() ? "Unknown Date" : date) + " ────";
                             ImGui::TextColored(ImVec4(0.5f, 0.75f, 1.0f, 0.9f), "%s", divider.c_str());
                             ImGui::Spacing();
                         }
@@ -1398,7 +1399,7 @@ int main() {
             ImGui::End(); // End main content area
         }
 
-        // -- Finalize and render the frame --
+        // ── Finalize and render the frame ──
         ImGui::Render();
         glClearColor(0.10f, 0.10f, 0.12f, 1.0f); // Flat dark background color
         glClear(GL_COLOR_BUFFER_BIT);
@@ -1406,7 +1407,7 @@ int main() {
         glfwSwapBuffers(window); // Show the finished frame on screen
     }
 
-    // -- Cleanup - release all resources before exiting --
+    // ── Cleanup — release all resources before exiting ──
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
