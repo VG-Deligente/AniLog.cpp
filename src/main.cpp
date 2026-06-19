@@ -668,7 +668,6 @@ int main() {
                 int epsWatched = 0, chsRead = 0;
                 int completedCount = 0, droppedCount = 0, watchingCount = 0, readingCount = 0;
                 int totalRereads = 0;
-                
 
                 for (size_t i = 0; i < currentLibrary.size(); i++) {
                     if (currentLibrary[i].type == "Anime") { totalAnime++; epsWatched += currentLibrary[i].currentProgress; }
@@ -680,8 +679,6 @@ int main() {
                     totalRereads += currentLibrary[i].rereadCount;
                 }
 
-
-                // ── ADD THIS BLOCK after the for loop ──
                 float avgRating = 0.0f;
                 int ratedCount = 0;
                 string mostWatchedTitle = "N/A", mostReadTitle = "N/A";
@@ -705,29 +702,104 @@ int main() {
                 float completionRate = (currentLibrary.size() > 0)
                     ? (completedCount * 100.0f / currentLibrary.size()) : 0.0f;
 
-                ImGui::PushStyleColor(ImGuiCol_TableRowBg,       ImVec4(0.10f, 0.10f, 0.20f, 0.8f));
-                ImGui::PushStyleColor(ImGuiCol_TableRowBgAlt,    ImVec4(0.15f, 0.15f, 0.28f, 0.8f));
-                ImGui::PushStyleColor(ImGuiCol_TableBorderStrong,ImVec4(0.35f, 0.65f, 1.0f,  0.5f));
-                ImGui::PushStyleColor(ImGuiCol_TableBorderLight, ImVec4(0.35f, 0.65f, 1.0f,  0.3f));
-
-                
-                                // ── SECTION 1: Overall Vault Status ──
+                // ── SECTION 1: Overall Vault Status ──
                 ImGui::SetWindowFontScale(1.4f);
                 ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.6f, 1.0f), "Overall Vault Status");
                 ImGui::SetWindowFontScale(1.3f);
-                ImGui::Text("Total Anime Tracked: %d", totalAnime);
-                ImGui::Text("Total Manga Tracked: %d", totalManga);
-                ImGui::Text("Completed Titles: %d", completedCount);
-                ImGui::Text("Dropped Titles: %d", droppedCount);
+                ImGui::Spacing();
+
+                if (ImGui::BeginTable("StatsVault", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp)) {
+                    ImGui::TableSetupColumn("Statistic", ImGuiTableColumnFlags_WidthStretch, 2.0f);
+                    ImGui::TableSetupColumn("Value",     ImGuiTableColumnFlags_WidthStretch, 1.0f);
+                    ImGui::TableHeadersRow();
+
+                    auto addRow = [](const char* label, const char* value) {
+                        ImGui::TableNextRow();
+                        ImGui::TableSetColumnIndex(0); ImGui::Text("%s", label);
+                        ImGui::TableSetColumnIndex(1); ImGui::Text("%s", value);
+                    };
+
+                    char buf[64];
+                    snprintf(buf, sizeof(buf), "%d", totalAnime);      addRow("Total Anime Tracked", buf);
+                    snprintf(buf, sizeof(buf), "%d", totalManga);      addRow("Total Manga Tracked", buf);
+                    snprintf(buf, sizeof(buf), "%d", completedCount);  addRow("Completed Titles", buf);
+                    snprintf(buf, sizeof(buf), "%d", droppedCount);    addRow("Dropped Titles", buf);
+                    snprintf(buf, sizeof(buf), "%d", watchingCount);   addRow("Currently Watching", buf);
+                    snprintf(buf, sizeof(buf), "%d", readingCount);    addRow("Currently Reading", buf);
+                    snprintf(buf, sizeof(buf), "%.1f%%", completionRate); addRow("Completion Rate", buf);
+
+                    ImGui::EndTable();
+                }
 
                 ImGui::Spacing(); ImGui::Spacing();
 
-                ImGui::SetWindowFontScale(1.5f);
+                // ── SECTION 2: Consumption Metrics ──
+                ImGui::SetWindowFontScale(1.4f);
                 ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "Consumption Metrics");
                 ImGui::SetWindowFontScale(1.3f);
-                ImGui::Text("Total Episodes Watched: %d", epsWatched);
-                ImGui::Text("Total Chapters Read: %d", chsRead);
-                ImGui::Text("Total Rewatches / Rereads: %d", totalRereads);
+                ImGui::Spacing();
+
+                if (ImGui::BeginTable("StatsConsumption", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp)) {
+                    ImGui::TableSetupColumn("Metric", ImGuiTableColumnFlags_WidthStretch, 2.0f);
+                    ImGui::TableSetupColumn("Value",  ImGuiTableColumnFlags_WidthStretch, 1.0f);
+                    ImGui::TableHeadersRow();
+
+                    auto addRow = [](const char* label, const char* value) {
+                        ImGui::TableNextRow();
+                        ImGui::TableSetColumnIndex(0); ImGui::Text("%s", label);
+                        ImGui::TableSetColumnIndex(1); ImGui::Text("%s", value);
+                    };
+
+                    char buf[64];
+                    snprintf(buf, sizeof(buf), "%d", epsWatched);   addRow("Total Episodes Watched", buf);
+                    snprintf(buf, sizeof(buf), "%d", chsRead);      addRow("Total Chapters Read", buf);
+                    snprintf(buf, sizeof(buf), "%d", totalRereads); addRow("Total Rewatches / Rereads", buf);
+                    snprintf(buf, sizeof(buf), "%.2f / 5", avgRating); addRow("Average Rating", buf);
+                    addRow("Most Watched Anime", mostWatchedTitle.c_str());
+                    addRow("Most Read Manga",    mostReadTitle.c_str());
+
+                    ImGui::EndTable();
+                }
+
+                ImGui::Spacing(); ImGui::Spacing();
+
+                // ── SECTION 3: Insights ──
+                ImGui::SetWindowFontScale(1.4f);
+                ImGui::TextColored(ImVec4(1.0f, 0.75f, 0.3f, 1.0f), "Insights");
+                ImGui::SetWindowFontScale(1.3f);
+                ImGui::Spacing();
+
+                if (ImGui::BeginTable("StatsInsights", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp)) {
+                    ImGui::TableSetupColumn("Insight",  ImGuiTableColumnFlags_WidthStretch, 2.0f);
+                    ImGui::TableSetupColumn("Value",    ImGuiTableColumnFlags_WidthStretch, 2.5f);
+                    ImGui::TableHeadersRow();
+
+                    auto addRow = [](const char* label, const char* value) {
+                        ImGui::TableNextRow();
+                        ImGui::TableSetColumnIndex(0); ImGui::Text("%s", label);
+                        ImGui::TableSetColumnIndex(1); ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.6f, 1.0f), "%s", value);
+                    };
+
+                    char buf[64];
+
+                    snprintf(buf, sizeof(buf), "%.2f / 5.00", avgRating);
+                    addRow("Average Rating", buf);
+
+                    snprintf(buf, sizeof(buf), "%.1f%%", completionRate);
+                    addRow("Completion Rate", buf);
+
+                    addRow("Most Watched Anime", mostWatchedTitle.c_str());
+
+                    snprintf(buf, sizeof(buf), "%d eps", mostWatchedEps < 0 ? 0 : mostWatchedEps);
+                    addRow("  Episodes Watched", buf);
+
+                    addRow("Most Read Manga", mostReadTitle.c_str());
+
+                    snprintf(buf, sizeof(buf), "%d chs", mostReadChs < 0 ? 0 : mostReadChs);
+                    addRow("  Chapters Read", buf);
+
+                    ImGui::EndTable();
+                }
             }
 
             // ==========================================
