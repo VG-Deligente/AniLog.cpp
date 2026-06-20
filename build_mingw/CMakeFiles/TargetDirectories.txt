@@ -1,0 +1,3 @@
+C:/Users/PC user/AniLog.cpp/build_mingw/CMakeFiles/AnimeTracker.dir
+C:/Users/PC user/AniLog.cpp/build_mingw/CMakeFiles/edit_cache.dir
+C:/Users/PC user/AniLog.cpp/build_mingw/CMakeFiles/rebuild_cache.dir
