@@ -172,7 +172,7 @@ void RenderLibraryTab(ImVec2 center) {
         ImGui::TableSetupColumn("Type",          ImGuiTableColumnFlags_WidthStretch, 1.0f);
         ImGui::TableSetupColumn("Date Finished", ImGuiTableColumnFlags_WidthStretch, 1.5f);
         ImGui::TableSetupColumn("Rating",        ImGuiTableColumnFlags_WidthStretch, 0.8f);
-        ImGui::TableSetupColumn("Rewatched",     ImGuiTableColumnFlags_WidthStretch, 1.0f);
+        ImGui::TableSetupColumn("Rewatched/Reread",     ImGuiTableColumnFlags_WidthStretch, 1.0f);
         ImGui::TableSetupColumn("Actions",       ImGuiTableColumnFlags_WidthStretch, 2.5f);
         ImGui::TableHeadersRow();
 

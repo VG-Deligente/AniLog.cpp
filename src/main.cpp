@@ -32,6 +32,11 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include <GLFW/glfw3.h>
+#if defined(_WIN32)
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+#include <windows.h>
+#endif
 #include "anilog_globals.h"
 
 // Auth helpers defined in anilog_utils.cpp but not in anilog_globals.h
@@ -42,11 +47,41 @@ bool loginUser(const string& username, const string& password);
 bool registerUser(const string& username, const string& password);
 void clearMessage();
 
+#if defined(_WIN32)
+static void setWindowsAppIcon(GLFWwindow* window) {
+    HINSTANCE instance = GetModuleHandleA(nullptr);
+    HWND hwnd = glfwGetWin32Window(window);
+
+    HICON largeIcon = LoadIconA(instance, "IDI_ANILOG");
+    HICON smallIcon = static_cast<HICON>(LoadImageA(
+        instance,
+        "IDI_ANILOG",
+        IMAGE_ICON,
+        GetSystemMetrics(SM_CXSMICON),
+        GetSystemMetrics(SM_CYSMICON),
+        LR_DEFAULTCOLOR));
+
+    if (largeIcon) {
+        SendMessageA(hwnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(largeIcon));
+        SetClassLongPtrA(hwnd, GCLP_HICON, reinterpret_cast<LONG_PTR>(largeIcon));
+    }
+
+    if (smallIcon || largeIcon) {
+        HICON icon = smallIcon ? smallIcon : largeIcon;
+        SendMessageA(hwnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(icon));
+        SetClassLongPtrA(hwnd, GCLP_HICONSM, reinterpret_cast<LONG_PTR>(icon));
+    }
+}
+#endif
+
 int main() {
     // -- Window and graphics setup --
     if (!glfwInit()) return 1;
     GLFWwindow* window = glfwCreateWindow(1280, 720, "AniLog - Media Tracker", NULL, NULL);
     if (!window) { glfwTerminate(); return 1; }
+#if defined(_WIN32)
+    setWindowsAppIcon(window);
+#endif
     glfwMakeContextCurrent(window);
 
     IMGUI_CHECKVERSION();
