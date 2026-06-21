@@ -15,6 +15,12 @@ include_directories(${CMAKE_SOURCE_DIR}/include/imgui)
 # List every C++ file that needs to be compiled together
 set(SOURCES
     src/main.cpp
+    src/anilog_utils.cpp
+    src/anilog_library.cpp
+    src/anilog_add_edit.cpp
+    src/anilog_statistics.cpp
+    src/anilog_activity_log.cpp
+    src/anilog_help.cpp
     include/imgui/imgui.cpp
     include/imgui/imgui_draw.cpp
     include/imgui/imgui_tables.cpp
