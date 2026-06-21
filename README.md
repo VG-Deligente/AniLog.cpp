@@ -57,20 +57,27 @@ time - all in a snappy desktop window with no internet required.
 
 ```text
 AniLog.cpp/
-├── include/imgui/               # Vendored Dear ImGui source files
-├── src/
-│   ├── main.cpp                 # Window setup, render loop, sidebar, login/signup
-│   ├── anilog_globals.h         # Shared "contract": fonts, colors, structs, enums, declarations
-│   ├── anilog_utils.cpp         # Global definitions, file I/O, auth, sorting helpers
-│   ├── anilog_library.cpp       # TAB 1: AniDex (Active / Completed / Dropped tables)
-│   ├── anilog_add_edit.cpp      # TAB 2: Add / Edit record form
-│   ├── anilog_statistics.cpp    # TAB 3: Statistics (totals, metrics)
-│   ├── anilog_activity_log.cpp  # TAB 4: Activity log
-│   └── anilog_help.cpp          # TAB 5: Help guide
-├── CMakeLists.txt               # CMake build configuration
-├── README.md                    # You are here
-├── LICENSE
-└── imgui.ini                    # ImGui window-layout state (generated at runtime)
+|-- .github/workflows/
+|   `-- build-windows-exe.yml    # GitHub Actions build and release artifact upload
+|-- include/imgui/               # Vendored Dear ImGui source files
+|-- resources/
+|   |-- anilog.ico               # Windows executable icon embedded by CMake
+|   |-- anilog-icon.png          # PNG source/preview for the AniLog icon
+|   `-- anilog.rc                # Windows resource file for AniLog.exe
+|-- src/
+|   |-- main.cpp                 # Window setup, render loop, sidebar, login/signup
+|   |-- anilog_globals.h         # Shared fonts, colors, structs, enums, declarations
+|   |-- anilog_utils.cpp         # Global definitions, file I/O, auth, sorting helpers
+|   |-- anilog_library.cpp       # TAB 1: AniDex library tables
+|   |-- anilog_add_edit.cpp      # TAB 2: Add / Edit record form
+|   |-- anilog_statistics.cpp    # TAB 3: Statistics totals and progress metrics
+|   |-- anilog_activity_log.cpp  # TAB 4: Activity log
+|   `-- anilog_help.cpp          # TAB 5: Help guide
+|-- CMakeLists.txt               # Builds the app target as AniLog.exe
+|-- image.png                    # README banner image
+|-- README.md                    # You are here
+|-- LICENSE
+`-- imgui.ini                    # ImGui window-layout state (generated at runtime)
 ```
 
 ## Download Windows EXE
@@ -84,6 +91,9 @@ any build tools.
 
 AniLog saves your data next to the executable, so keep the `.exe` in a folder
 where you want its local data files to live.
+
+The release executable is built as `AniLog.exe` and includes the AniLog app icon
+from `resources/anilog.ico`.
 
 ## 📦 Requirements
 
@@ -133,6 +143,9 @@ The smoothest path on Windows is **MSYS2 UCRT64**.
    cmake -S . -B build -G "MinGW Makefiles"
    cmake --build build
    ```
+
+   This generates `AniLog.exe` in the build output and embeds the Windows icon
+   from `resources/anilog.rc`.
 
 7. **Run the app:**
 
