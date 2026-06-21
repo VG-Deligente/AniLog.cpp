@@ -64,7 +64,7 @@ AniLog.cpp/
 │   ├── anilog_utils.cpp         # Global definitions, file I/O, auth, sorting helpers
 │   ├── anilog_library.cpp       # TAB 1: AniDex (Active / Completed / Dropped tables)
 │   ├── anilog_add_edit.cpp      # TAB 2: Add / Edit record form
-│   ├── anilog_statistics.cpp    # TAB 3: Statistics (totals, metrics, insights)
+│   ├── anilog_statistics.cpp    # TAB 3: Statistics (totals, metrics)
 │   ├── anilog_activity_log.cpp  # TAB 4: Activity log
 │   └── anilog_help.cpp          # TAB 5: Help guide
 ├── CMakeLists.txt               # CMake build configuration
@@ -158,7 +158,7 @@ You can also build straight from VS Code:
 1. **Create an account** on first launch (Sign Up), then **log in**.
 2. Open **Add Record** to add a title - set its type (Anime/Manga), progress, rating, and status.
 3. In **AniDex**, use **`+1 Episode` / `+1 Chapter`** to log progress; titles move to **Completed** automatically when they reach their total.
-4. Check the **Statistics** tab to see your totals, progress metrics, and insights update live.
+4. Check the **Statistics** tab to see your totals and progress metrics update live.
 5. Review everything you have done in the **Activity Log**.
 6. Stuck? The **Help** tab has tips and common fixes built right in.
 
