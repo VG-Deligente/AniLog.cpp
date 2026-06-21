@@ -48,7 +48,7 @@ time - all in a snappy desktop window with no internet required.
 - **Add / Edit form** - one consistent form for creating and editing records, with live validation (no blank or duplicate titles).
 - **Search &amp; filter** - find titles by name and filter by media type, with one-click sorting (A-Z, Z-A, rating, progress).
 - **Rewatch / Reread &amp; Resume** - restart completed titles or pick dropped ones back up.
-- **Statistics tab** - live totals, progress metrics, and insights (most-watched, highest-rated, completion rate) presented as clean tables.
+- **Statistics tab** - live totals and progress metrics presented as clean tables.
 - **Activity log** - a timestamped history of everything you do, grouped by date, newest first.
 - **Built-in Help tab** - getting-started notes, tips, and common fixes inside the app.
 - **100% offline** - your data never leaves your computer.
