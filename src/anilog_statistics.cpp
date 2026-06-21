@@ -1,16 +1,40 @@
 // =============================================================================
-//  anilog_statistics.cpp
-//  TAB 3: Statistics — vault totals, progress metrics, insights, bar chart.
+//  anilog_statistics.cpp  -  TAB 3: STATISTICS
+// -----------------------------------------------------------------------------
+//  WHAT THIS TAB DOES
+//    Reads the whole library once, tallies it up, and presents the numbers as
+//    three stacked tables, top to bottom:
+//      1. Overall Vault Status .. totals per type/status + completion rate.
+//      2. Progress Metrics ...... episodes watched, chapters read, avg rating.
+//      3. Insights .............. "most watched", "highest rated", etc.
+//    Everything is recomputed every frame from `currentLibrary`, so the page is
+//    always live - add or edit a record and the numbers update immediately.
+//
+//  HOW THE PAGE IS BUILT
+//    The whole tab is one function, RenderStatisticsTab(). It first walks the
+//    library a single time to accumulate every counter it needs (totals, status
+//    counts, episodes, chapters, ratings, "most/highest" picks). After that it
+//    just lays out the three tables using those accumulated values. There is no
+//    chart or drawing code - the tab is purely tabular.
+//
+//  WHERE TO CHANGE THINGS
+//    - Add / rename a row ...... edit the statRow / insightRow calls in the
+//                                matching table block below.
+//    - Add a new metric ........ accumulate it in the single pass at the top of
+//                                RenderStatisticsTab(), then print it in a row.
+//    - Section colors .......... the COLOR_* passed to each section heading.
+//    - Text size ............... FONT_SCALE_* in anilog_globals.h.
 // =============================================================================
 
 #include "anilog_globals.h"
 
 void RenderStatisticsTab() {
-    ImGui::SetWindowFontScale(1.5f);
-    ImGui::Text("Statistics");
+    ImGui::SetWindowFontScale(FONT_SCALE_HEADER);
+    ImGui::TextColored(COLOR_ACCENT_BLUE, "Statistics");
+    ImGui::SetWindowFontScale(FONT_SCALE_BODY);
     ImGui::Separator(); ImGui::Spacing();
 
-    // ── Aggregate all stats in a single pass ──
+    // -- Aggregate all stats in a single pass --
     int totalAnime = 0, totalManga = 0;
     int epsWatched = 0, chsRead = 0;
     int completedCnt = 0, droppedCnt = 0, watchingCnt = 0, readingCnt = 0;
@@ -55,9 +79,10 @@ void RenderStatisticsTab() {
                               | ImGuiTableFlags_RowBg
                               | ImGuiTableFlags_SizingStretchProp;
 
-    // ── SECTION 1: Overall Vault Status ──
-    ImGui::SetWindowFontScale(1.4f);
-    ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.6f, 1.0f), "Overall Vault Status");
+    // -- SECTION 1: Overall Vault Status --
+    ImGui::SetWindowFontScale(FONT_SCALE_SECTION);
+    ImGui::TextColored(COLOR_ACCENT_GREEN, "Overall Vault Status");
+    ImGui::SetWindowFontScale(FONT_SCALE_BODY);
     ImGui::Spacing();
 
     if (ImGui::BeginTable("StatsVault", 2, statFlags)) {
@@ -67,8 +92,8 @@ void RenderStatisticsTab() {
 
         auto statRow = [](const char* label, const char* value) {
             ImGui::TableNextRow();
-            ImGui::TableSetColumnIndex(0); ImGui::SetWindowFontScale(1.3f); ImGui::Text("%s", label);
-            ImGui::TableSetColumnIndex(1); ImGui::SetWindowFontScale(1.3f); ImGui::Text("%s", value);
+            ImGui::TableSetColumnIndex(0); ImGui::SetWindowFontScale(FONT_SCALE_BODY); ImGui::Text("%s", label);
+            ImGui::TableSetColumnIndex(1); ImGui::SetWindowFontScale(FONT_SCALE_BODY); ImGui::Text("%s", value);
         };
 
         char buf[64];
@@ -84,9 +109,10 @@ void RenderStatisticsTab() {
 
     ImGui::Spacing(); ImGui::Spacing();
 
-    // ── SECTION 2: Progress Metrics ──
-    ImGui::SetWindowFontScale(1.4f);
-    ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "Progress Metrics");
+    // -- SECTION 2: Progress Metrics --
+    ImGui::SetWindowFontScale(FONT_SCALE_SECTION);
+    ImGui::TextColored(COLOR_ACCENT_BLUE, "Progress Metrics");
+    ImGui::SetWindowFontScale(FONT_SCALE_BODY);
     ImGui::Spacing();
 
     if (ImGui::BeginTable("StatsProgress", 2, statFlags)) {
@@ -96,8 +122,8 @@ void RenderStatisticsTab() {
 
         auto statRow = [](const char* label, const char* value) {
             ImGui::TableNextRow();
-            ImGui::TableSetColumnIndex(0); ImGui::SetWindowFontScale(1.3f); ImGui::Text("%s", label);
-            ImGui::TableSetColumnIndex(1); ImGui::SetWindowFontScale(1.3f); ImGui::Text("%s", value);
+            ImGui::TableSetColumnIndex(0); ImGui::SetWindowFontScale(FONT_SCALE_BODY); ImGui::Text("%s", label);
+            ImGui::TableSetColumnIndex(1); ImGui::SetWindowFontScale(FONT_SCALE_BODY); ImGui::Text("%s", value);
         };
 
         char buf[64];
@@ -110,9 +136,10 @@ void RenderStatisticsTab() {
 
     ImGui::Spacing(); ImGui::Spacing();
 
-    // ── SECTION 3: Insights ──
-    ImGui::SetWindowFontScale(1.4f);
-    ImGui::TextColored(ImVec4(1.0f, 0.75f, 0.3f, 1.0f), "Insights");
+    // -- SECTION 3: Insights --
+    ImGui::SetWindowFontScale(FONT_SCALE_SECTION);
+    ImGui::TextColored(COLOR_ACCENT_ORANGE, "Insights");
+    ImGui::SetWindowFontScale(FONT_SCALE_BODY);
     ImGui::Spacing();
 
     if (ImGui::BeginTable("StatsInsights", 2, statFlags)) {
@@ -122,9 +149,9 @@ void RenderStatisticsTab() {
 
         auto insightRow = [](const char* label, const char* value) {
             ImGui::TableNextRow();
-            ImGui::TableSetColumnIndex(0); ImGui::SetWindowFontScale(1.3f); ImGui::Text("%s", label);
-            ImGui::TableSetColumnIndex(1); ImGui::SetWindowFontScale(1.3f);
-            ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.6f, 1.0f), "%s", value);
+            ImGui::TableSetColumnIndex(0); ImGui::SetWindowFontScale(FONT_SCALE_BODY); ImGui::Text("%s", label);
+            ImGui::TableSetColumnIndex(1); ImGui::SetWindowFontScale(FONT_SCALE_BODY);
+            ImGui::TextColored(COLOR_ACCENT_GREEN, "%s", value);
         };
 
         char buf[128];
@@ -141,87 +168,4 @@ void RenderStatisticsTab() {
         insightRow("  Rating", buf);
         ImGui::EndTable();
     }
-
-    // ── SECTION 4: Progress Overview Bar Chart ──
-    ImGui::Spacing(); ImGui::Spacing();
-    ImGui::SetWindowFontScale(1.4f);
-    ImGui::TextColored(ImVec4(1.0f, 0.75f, 0.3f, 1.0f), "Progress Overview");
-    ImGui::Spacing();
-
-    struct BarData { const char* label; float value; float maxVal; ImVec4 color; };
-    BarData bars[] = {
-        { "Anime",     (float)totalAnime,   10.0f,  ImVec4(0.35f, 0.65f, 1.0f, 1.0f) },
-        { "Manga",     (float)totalManga,   10.0f,  ImVec4(0.4f,  1.0f,  0.6f, 1.0f) },
-        { "Completed", (float)completedCnt, 10.0f,  ImVec4(0.4f,  1.0f,  0.6f, 1.0f) },
-        { "Dropped",   (float)droppedCnt,   10.0f,  ImVec4(1.0f,  0.4f,  0.4f, 1.0f) },
-        { "Watching",  (float)watchingCnt,  10.0f,  ImVec4(1.0f,  0.75f, 0.3f, 1.0f) },
-        { "Eps",       (float)epsWatched,   100.0f, ImVec4(0.35f, 0.65f, 1.0f, 1.0f) },
-        { "Chapters",  (float)chsRead,      100.0f, ImVec4(0.9f,  0.5f,  1.0f, 1.0f) },
-    };
-    int barCount = IM_ARRAYSIZE(bars);
-
-    ImVec2 canvasPos  = ImGui::GetCursorScreenPos();
-    float  canvasW    = ImGui::GetContentRegionAvail().x;
-    float  canvasH    = 180.0f;
-    float  axisW      = 40.0f;
-    float  barPadding = 12.0f;
-    float  graphW     = canvasW - axisW;
-    float  barW       = (graphW - barPadding * (barCount + 1)) / barCount;
-    float  labelH     = 20.0f;
-    float  graphH     = canvasH - labelH;
-
-    ImDrawList* dl = ImGui::GetWindowDrawList();
-
-    // Background
-    dl->AddRectFilled(canvasPos,
-                      ImVec2(canvasPos.x + canvasW, canvasPos.y + canvasH),
-                      IM_COL32(30, 30, 40, 255), 6.0f);
-
-    // Y-axis gridlines and labels
-    int ySteps = 5;
-    for (int s = 0; s <= ySteps; s++) {
-        float ratio = (float)s / ySteps;
-        float y     = canvasPos.y + graphH * (1.0f - ratio);
-        int   pct   = (int)(ratio * 100);
-
-        dl->AddLine(ImVec2(canvasPos.x + axisW, y),
-                    ImVec2(canvasPos.x + canvasW, y),
-                    IM_COL32(80, 80, 100, 120), 1.0f);
-
-        char lblBuf[8];
-        snprintf(lblBuf, sizeof(lblBuf), "%d%%", pct);
-        ImVec2 lblSize = ImGui::CalcTextSize(lblBuf);
-        dl->AddText(ImVec2(canvasPos.x + axisW - lblSize.x - 4.0f, y - lblSize.y * 0.5f),
-                    IM_COL32(180, 180, 180, 255), lblBuf);
-    }
-
-    // Vertical axis line
-    dl->AddLine(ImVec2(canvasPos.x + axisW, canvasPos.y),
-                ImVec2(canvasPos.x + axisW, canvasPos.y + graphH),
-                IM_COL32(120, 120, 150, 255), 1.5f);
-
-    // Bars
-    for (int i = 0; i < barCount; i++) {
-        float ratio = (bars[i].maxVal > 0) ? (bars[i].value / bars[i].maxVal) : 0.0f;
-        if (ratio > 1.0f) ratio = 1.0f;
-
-        float x0 = canvasPos.x + axisW + barPadding + i * (barW + barPadding);
-        float y0 = canvasPos.y + graphH * (1.0f - ratio);
-        float y1 = canvasPos.y + graphH;
-
-        dl->AddRectFilled(ImVec2(x0, y0), ImVec2(x0 + barW, y1),
-                          ImGui::ColorConvertFloat4ToU32(bars[i].color), 4.0f);
-
-        char valBuf[16];
-        snprintf(valBuf, sizeof(valBuf), "%d", (int)bars[i].value);
-        ImVec2 valSize = ImGui::CalcTextSize(valBuf);
-        dl->AddText(ImVec2(x0 + (barW - valSize.x) * 0.5f, y0 - valSize.y - 2.0f),
-                    IM_COL32(255, 255, 255, 200), valBuf);
-
-        ImVec2 lblSize = ImGui::CalcTextSize(bars[i].label);
-        dl->AddText(ImVec2(x0 + (barW - lblSize.x) * 0.5f, canvasPos.y + graphH + 4.0f),
-                    IM_COL32(200, 200, 200, 255), bars[i].label);
-    }
-
-    ImGui::Dummy(ImVec2(canvasW, canvasH));
 }

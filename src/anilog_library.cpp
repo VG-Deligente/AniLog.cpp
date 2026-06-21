@@ -1,16 +1,18 @@
 // =============================================================================
 //  anilog_library.cpp
-//  TAB 1: AniDex — Library view with Active, Completed, and Dropped tables.
+//  TAB 1: AniDex - Library view with Active, Completed, and Dropped tables.
 // =============================================================================
 
 #include "anilog_globals.h"
 #include <algorithm>
 
 void RenderLibraryTab(ImVec2 center) {
-    ImGui::Text("AniDex — My Media Vault");
+    ImGui::SetWindowFontScale(FONT_SCALE_HEADER);
+    ImGui::TextColored(COLOR_ACCENT_BLUE, "AniDex - My Media Vault");
+    ImGui::SetWindowFontScale(FONT_SCALE_BODY);
     ImGui::Separator(); ImGui::Spacing();
 
-    // ── Search and Filter bar ──
+    // -- Search and Filter bar --
     ImGui::SetNextItemWidth(300);
     ImGui::InputTextWithHint("##search", "Search title...", searchBuffer, IM_ARRAYSIZE(searchBuffer));
     string searchStr = toLowerStr(searchBuffer);
@@ -45,10 +47,10 @@ void RenderLibraryTab(ImVec2 center) {
         return true;
     };
 
-    // ── ACTIVE TABLE ──
-    ImGui::SetWindowFontScale(1.4f);
-    ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "Active");
-    ImGui::SetWindowFontScale(1.0f);
+    // -- ACTIVE TABLE --
+    ImGui::SetWindowFontScale(FONT_SCALE_SECTION);
+    ImGui::TextColored(COLOR_ACCENT_BLUE, "Active");
+    ImGui::SetWindowFontScale(FONT_SCALE_BODY);
     ImGui::Spacing();
 
     int activeCount = 0;
@@ -86,7 +88,7 @@ void RenderLibraryTab(ImVec2 center) {
 
             if (currentLibrary[i].currentProgress < currentLibrary[i].totalProgress) {
                 string btnLabel = (currentLibrary[i].type == "Anime") ? "+1 Episode" : "+1 Chapter";
-                if (ImGui::Button(btnLabel.c_str(), ImVec2(110, 0))) {
+                if (ImGui::Button(btnLabel.c_str(), ImVec2(130, 0))) {
                     currentLibrary[i].currentProgress++;
                     string unit = (currentLibrary[i].type == "Anime") ? "episode" : "chapter";
                     logActivity("Progress Updated: [" + currentLibrary[i].title
@@ -151,10 +153,10 @@ void RenderLibraryTab(ImVec2 center) {
 
     ImGui::Spacing(); ImGui::Spacing();
 
-    // ── COMPLETED TABLE ──
-    ImGui::SetWindowFontScale(1.4f);
-    ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.6f, 1.0f), "Completed");
-    ImGui::SetWindowFontScale(1.0f);
+    // -- COMPLETED TABLE --
+    ImGui::SetWindowFontScale(FONT_SCALE_SECTION);
+    ImGui::TextColored(COLOR_ACCENT_GREEN, "Completed");
+    ImGui::SetWindowFontScale(FONT_SCALE_BODY);
     ImGui::Spacing();
 
     int completedCount = 0;
@@ -190,7 +192,7 @@ void RenderLibraryTab(ImVec2 center) {
 
             string rBtnLabel = (currentLibrary[i].type == "Anime") ? "Rewatch" : "Reread";
             string rPopupId  = "RewatchConf_" + to_string(i);
-            if (ImGui::Button(rBtnLabel.c_str(), ImVec2(100, 0)))
+            if (ImGui::Button(rBtnLabel.c_str(), ImVec2(110, 0)))
                 ImGui::OpenPopup(rPopupId.c_str());
 
             ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
@@ -260,10 +262,10 @@ void RenderLibraryTab(ImVec2 center) {
 
     ImGui::Spacing(); ImGui::Spacing();
 
-    // ── DROPPED TABLE ──
-    ImGui::SetWindowFontScale(1.4f);
-    ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.3f, 1.0f), "Dropped");
-    ImGui::SetWindowFontScale(1.0f);
+    // -- DROPPED TABLE --
+    ImGui::SetWindowFontScale(FONT_SCALE_SECTION);
+    ImGui::TextColored(COLOR_ACCENT_ORANGE, "Dropped");
+    ImGui::SetWindowFontScale(FONT_SCALE_BODY);
     ImGui::Spacing();
 
     int droppedCount = 0;
@@ -297,7 +299,7 @@ void RenderLibraryTab(ImVec2 center) {
             ImGui::TableSetColumnIndex(4); ImGui::Text("%s", currentLibrary[i].dateStarted.empty() ? "-" : currentLibrary[i].dateStarted.c_str());
             ImGui::TableSetColumnIndex(5);
 
-            if (ImGui::Button("Resume", ImVec2(80, 0))) {
+            if (ImGui::Button("Resume", ImVec2(90, 0))) {
                 currentLibrary[i].status = (currentLibrary[i].type == "Anime") ? "Watching" : "Reading";
                 logActivity("Status Changed: [" + currentLibrary[i].title + "] resumed from Dropped.");
                 saveLibrary();

@@ -10,14 +10,22 @@
 //    - C++ STL     : vectors, strings, file streams, sorting
 //
 //  File structure:
-//    main.cpp              — window setup, render loop, sidebar, login screen
-//    anilog_globals.h      — shared enums, structs, extern declarations
-//    anilog_utils.cpp      — global definitions, utilities, file I/O, auth
-//    anilog_library.cpp    — TAB 1: AniDex library view
-//    anilog_add_edit.cpp   — TAB 2: Add / Edit record form
-//    anilog_statistics.cpp — TAB 3: Statistics and bar chart
-//    anilog_activity_log.cpp — TAB 4: Activity log
-//    anilog_help.cpp       — TAB 5: Help guide
+//    main.cpp              - window setup, render loop, sidebar, login screen
+//    anilog_globals.h      - shared enums, structs, extern declarations
+//    anilog_utils.cpp      - global definitions, utilities, file I/O, auth
+//    anilog_library.cpp    - TAB 1: AniDex library view
+//    anilog_add_edit.cpp   - TAB 2: Add / Edit record form
+//    anilog_statistics.cpp - TAB 3: Statistics + donut & horizontal bar charts
+//    anilog_activity_log.cpp - TAB 4: Activity log
+//    anilog_help.cpp       - TAB 5: Help guide
+//
+//  WHERE THE TEXT SIZES COME FROM
+//    The five content tabs all size their text from the FONT_SCALE_* values in
+//    anilog_globals.h, so changing those changes the whole content area at once.
+//    This file (main.cpp) draws two things that live in their OWN windows and
+//    therefore set their own scale directly: the left SIDEBAR and the LOGIN /
+//    SIGNUP screen. Search this file for SetWindowFontScale to find and adjust
+//    them. Keeping them a touch larger than 1.0 matches the enlarged tab text.
 // =============================================================================
 
 #include "imgui.h"
@@ -35,7 +43,7 @@ bool registerUser(const string& username, const string& password);
 void clearMessage();
 
 int main() {
-    // ── Window and graphics setup ──
+    // -- Window and graphics setup --
     if (!glfwInit()) return 1;
     GLFWwindow* window = glfwCreateWindow(1280, 720, "AniLog - Media Tracker", NULL, NULL);
     if (!window) { glfwTerminate(); return 1; }
@@ -104,7 +112,9 @@ int main() {
             ImGui::SetCursorPosX((winW - titleW) * 0.5f);
             ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "ANILOG");
 
-            ImGui::SetWindowFontScale(1.4f);
+            // Login/Signup body text size (its own window - not FONT_SCALE_*).
+            // Enlarged for readability; the 480px-wide fields fit it cleanly.
+            ImGui::SetWindowFontScale(1.5f);
             ImGui::Spacing(); ImGui::Separator(); ImGui::Spacing();
             ImGui::Dummy(ImVec2(0, 30));
 
@@ -186,12 +196,15 @@ int main() {
         // =====================================================================
         else if (currentScreen == DASHBOARD) {
 
-            // ── SIDEBAR ──
+            // -- SIDEBAR --
             ImGui::SetNextWindowPos(ImVec2(0, 0));
             ImGui::SetNextWindowSize(ImVec2(250, io.DisplaySize.y));
             ImGui::Begin("Sidebar", nullptr,
                          ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
-            ImGui::SetWindowFontScale(1.4f);
+            // Sidebar text size (its own window - not driven by FONT_SCALE_*).
+            // Enlarged to stay in step with the bigger tab text. The nav buttons
+            // are 230x45, which comfortably fits this size.
+            ImGui::SetWindowFontScale(1.55f);
 
             ImGui::Spacing();
             ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "ANILOG");
@@ -287,14 +300,16 @@ int main() {
 
             ImGui::End(); // End sidebar
 
-            // ── MAIN CONTENT AREA ──
+            // -- MAIN CONTENT AREA --
             ImGui::SetNextWindowPos(ImVec2(250, 0));
             ImGui::SetNextWindowSize(ImVec2(io.DisplaySize.x - 250, io.DisplaySize.y));
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(24.0f, 22.0f));
             ImGui::Begin("Content", nullptr,
                          ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
-            ImGui::SetWindowFontScale(1.4f);
+            ImGui::PopStyleVar();
+            ImGui::SetWindowFontScale(FONT_SCALE_BODY);
 
-            // ── Delegate to tab files ──
+            // -- Delegate to tab files --
             if      (currentTab == LIBRARY)                  RenderLibraryTab(center);
             else if (currentTab == ADD_MEDIA ||
                      currentTab == EDIT_MEDIA)               RenderAddEditTab(center);
@@ -305,7 +320,7 @@ int main() {
             ImGui::End(); // End content area
         }
 
-        // ── Render frame ──
+        // -- Render frame --
         ImGui::Render();
         glClearColor(0.10f, 0.10f, 0.12f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -313,7 +328,7 @@ int main() {
         glfwSwapBuffers(window);
     }
 
-    // ── Cleanup ──
+    // -- Cleanup --
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();

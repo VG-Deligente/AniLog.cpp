@@ -12,7 +12,7 @@
 #include <cctype>
 
 // =============================================================================
-//  GLOBAL DEFINITIONS — storage lives here, extern in anilog_globals.h
+//  GLOBAL DEFINITIONS - storage lives here, extern in anilog_globals.h
 // =============================================================================
 vector<UserRecord>  userDatabase;
 vector<MediaRecord> currentLibrary;

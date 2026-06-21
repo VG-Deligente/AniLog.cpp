@@ -6,18 +6,18 @@
 #include "anilog_globals.h"
 
 void RenderActivityLogTab() {
-    ImGui::SetWindowFontScale(1.5f);
-    ImGui::Text("Activity Log");
+    ImGui::SetWindowFontScale(FONT_SCALE_HEADER);
+    ImGui::TextColored(COLOR_ACCENT_BLUE, "Activity Log");
     ImGui::Separator(); ImGui::Spacing();
 
-    ImGui::SetWindowFontScale(1.3f);
+    ImGui::SetWindowFontScale(FONT_SCALE_BODY);
     if (activityLogs.empty()) {
-        ImGui::TextColored(ImVec4(0.55f, 0.55f, 0.55f, 1.0f), "No activity recorded yet.");
+        ImGui::TextColored(COLOR_MUTED, "No activity recorded yet.");
         return;
     }
 
     ImGui::BeginChild("LogScroll", ImVec2(0, 0), true);
-    ImGui::SetWindowFontScale(1.3f);
+    ImGui::SetWindowFontScale(FONT_SCALE_BODY);
 
     string lastDate = "";
 

@@ -6,15 +6,20 @@
 #include "anilog_globals.h"
 
 void RenderHelpTab() {
-    ImGui::SetWindowFontScale(1.5f);
-    ImGui::TextColored(ImVec4(0.35f, 0.65f, 1.0f, 1.0f), "Help Guide");
+    ImGui::SetWindowFontScale(FONT_SCALE_HEADER);
+    ImGui::TextColored(COLOR_ACCENT_BLUE, "Help Guide");
     ImGui::Separator(); ImGui::Spacing();
 
-    ImGui::BeginChild("HelpScroll", ImVec2(0, 0), false);
-    ImGui::SetWindowFontScale(1.3f);
+    // NoBackground keeps this scroll region transparent so it blends into
+    // the tab's own background instead of showing as a darker boxed panel.
+    ImGui::SetWindowFontScale(FONT_SCALE_BODY);
+    ImGui::BeginChild("HelpScroll", ImVec2(0, 0), false, ImGuiWindowFlags_NoBackground);
+    ImGui::SetWindowFontScale(FONT_SCALE_BODY);
 
     // ── Getting Started ──
-    ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.6f, 1.0f), "Getting Started");
+    ImGui::SetWindowFontScale(FONT_SCALE_SECTION);
+    ImGui::TextColored(COLOR_ACCENT_GREEN, "Getting Started");
+    ImGui::SetWindowFontScale(FONT_SCALE_BODY);
     ImGui::Separator(); ImGui::Spacing();
     ImGui::TextWrapped("1. Use 'Add Record' in the sidebar to log a new anime or manga.");
     ImGui::TextWrapped("2. Fill in the title, type, progress, rating, and status, then click Save Record.");
@@ -22,7 +27,9 @@ void RenderHelpTab() {
     ImGui::Spacing(); ImGui::Spacing();
 
     // ── Common Problems ──
-    ImGui::TextColored(ImVec4(1.0f, 0.75f, 0.3f, 1.0f), "Common Problems");
+    ImGui::SetWindowFontScale(FONT_SCALE_SECTION);
+    ImGui::TextColored(COLOR_ACCENT_ORANGE, "Common Problems");
+    ImGui::SetWindowFontScale(FONT_SCALE_BODY);
     ImGui::Separator(); ImGui::Spacing();
 
     ImGui::TextColored(ImVec4(0.9f, 0.6f, 0.6f, 1.0f), "Save Record button is grayed out");
@@ -50,7 +57,9 @@ void RenderHelpTab() {
     ImGui::Spacing(); ImGui::Spacing();
 
     // ── Tips ──
-    ImGui::TextColored(ImVec4(0.9f, 0.5f, 1.0f, 1.0f), "Tips & Tricks");
+    ImGui::SetWindowFontScale(FONT_SCALE_SECTION);
+    ImGui::TextColored(COLOR_ACCENT_PURPLE, "Tips & Tricks");
+    ImGui::SetWindowFontScale(FONT_SCALE_BODY);
     ImGui::Separator(); ImGui::Spacing();
     ImGui::TextWrapped("- Use the Search bar in AniDex to quickly find a title by name.");
     ImGui::Spacing();
@@ -62,11 +71,13 @@ void RenderHelpTab() {
     ImGui::Spacing();
     ImGui::TextWrapped("- Dropped titles can be Resumed at any time from the Dropped section in AniDex.");
     ImGui::Spacing();
-    ImGui::TextWrapped("- The Statistics tab updates in real time — check it after adding records to see your progress overview and bar chart.");
+    ImGui::TextWrapped("- The Statistics tab updates in real time — check it after adding records to see your progress overview, donut, and bar charts.");
     ImGui::Spacing(); ImGui::Spacing();
 
     // ── About ──
-    ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "About");
+    ImGui::SetWindowFontScale(FONT_SCALE_SECTION);
+    ImGui::TextColored(COLOR_MUTED, "About");
+    ImGui::SetWindowFontScale(FONT_SCALE_BODY);
     ImGui::Separator(); ImGui::Spacing();
     ImGui::TextWrapped("ANILOG - Anime & Manga Media Tracker");
     ImGui::TextWrapped("COMP 003 | Final Laboratory Project");
