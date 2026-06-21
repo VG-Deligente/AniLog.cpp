@@ -58,5 +58,9 @@ set(SOURCES
 # Name the final app "AnimeTracker"
 add_executable(${PROJECT_NAME} ${SOURCES})
 
+if(WIN32)
+    set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
+endif()
+
 # Link the graphics libraries to the app
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw OpenGL::GL)
