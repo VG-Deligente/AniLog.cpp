@@ -1,24 +1,16 @@
-<h1 align="center">AniLog</h1>
-
+<p align="center">
+  <img src="image.png" alt="AniLog - Anime & Manga Media Tracker" width="100%">
+</p>
 <p align="center">
   <strong>A fast, native desktop tracker for your anime &amp; manga - built in modern C++.</strong>
 </p>
-
-
 <p align="center">
-  <img src="image.png" alt="AniLog - Anime &amp; Manga Media Tracker" width="820">
+  <a href="#-windows-setup">Setup</a> &nbsp;&bull;&nbsp;
+  <a href="#-key-features">Features</a> &nbsp;&bull;&nbsp;
+  <a href="#-project-structure">Structure</a>
 </p>
 
-<p align="center">
-  <a href="#windows-setup">Setup</a> &nbsp;&bull;&nbsp;
-  <a href="#key-features">Features</a> &nbsp;&bull;&nbsp;
-  <a href="#project-structure">Structure</a> &nbsp;&bull;&nbsp;
-  <a href="#troubleshooting">Troubleshooting</a>
-</p>
-
----
-
-## About AniLog
+## 📖 About AniLog
 
 AniLog is a **native desktop application** for keeping track of the anime you are
 watching and the manga you are reading. Instead of relying on a website or a
@@ -33,9 +25,7 @@ time - all in a snappy desktop window with no internet required.
 > **Status:** Active development. The app is fully usable; UI details and
 > features may still evolve.
 
----
-
-## Tech Stack
+## ⚙️ Tech Stack
 
 <p align="center">
   <img alt="C++17" src="https://img.shields.io/badge/C%2B%2B-17-00599C?style=for-the-badge&logo=cplusplus&logoColor=white">
@@ -48,9 +38,7 @@ time - all in a snappy desktop window with no internet required.
 
 <p align="center"><sub>Built in modern C++ with an immediate-mode Dear ImGui interface, GLFW windowing, OpenGL rendering, a CMake build, and 100% local plain-text storage (no database, no cloud).</sub></p>
 
----
-
-## Key Features
+## 🌟 Key Features
 
 - **Local accounts** - sign up and log in; each user gets their own private library and logs.
 - **Track anime &amp; manga** - store title, type, current/total progress, a 1-5 star rating, and status.
@@ -64,41 +52,27 @@ time - all in a snappy desktop window with no internet required.
 - **Built-in Help tab** - getting-started notes, tips, and common fixes inside the app.
 - **100% offline** - your data never leaves your computer.
 
----
+## 📁 Project Structure
 
-## Project Structure
-
-```
+```text
 AniLog.cpp/
-├── include/imgui/             # Vendored Dear ImGui source files
+├── include/imgui/               # Vendored Dear ImGui source files
 ├── src/
-│   ├── main.cpp               # Window setup, render loop, sidebar, login/signup
-│   ├── anilog_globals.h       # Shared "contract": fonts, colors, structs, enums, declarations
-│   ├── anilog_utils.cpp       # Global definitions, file I/O, auth, sorting helpers
-│   ├── anilog_library.cpp     # TAB 1: AniDex (Active / Completed / Dropped tables)
-│   ├── anilog_add_edit.cpp    # TAB 2: Add / Edit record form
-│   ├── anilog_statistics.cpp  # TAB 3: Statistics (totals, metrics, insights)
-│   ├── anilog_activity_log.cpp# TAB 4: Activity log
-│   └── anilog_help.cpp        # TAB 5: Help guide
-├── CMakeLists.txt             # CMake build configuration
-├── README.md                  # You are here
+│   ├── main.cpp                 # Window setup, render loop, sidebar, login/signup
+│   ├── anilog_globals.h         # Shared "contract": fonts, colors, structs, enums, declarations
+│   ├── anilog_utils.cpp         # Global definitions, file I/O, auth, sorting helpers
+│   ├── anilog_library.cpp       # TAB 1: AniDex (Active / Completed / Dropped tables)
+│   ├── anilog_add_edit.cpp      # TAB 2: Add / Edit record form
+│   ├── anilog_statistics.cpp    # TAB 3: Statistics (totals, metrics, insights)
+│   ├── anilog_activity_log.cpp  # TAB 4: Activity log
+│   └── anilog_help.cpp          # TAB 5: Help guide
+├── CMakeLists.txt               # CMake build configuration
+├── README.md                    # You are here
 ├── LICENSE
-└── imgui.ini                  # ImGui window-layout state (generated at runtime)
+└── imgui.ini                    # ImGui window-layout state (generated at runtime)
 ```
 
-**Where to change things (quick map):**
-
-| I want to change...                | Go to |
-| ---------------------------------- | ----- |
-| Text size across the whole app     | `FONT_SCALE_*` in `anilog_globals.h` |
-| Shared accent colors               | `COLOR_*` in `anilog_globals.h` |
-| What a saved record looks like     | `MediaRecord` struct in `anilog_globals.h` |
-| A specific tab's layout/behavior   | the matching `anilog_<tab>.cpp` file |
-| Sidebar / login text size          | the `SetWindowFontScale` calls in `main.cpp` |
-
----
-
-## Requirements
+## 📦 Requirements
 
 Install these before building:
 
@@ -111,9 +85,7 @@ Install these before building:
 > Dear ImGui is already included under `include/imgui`, so you do **not** need to
 > install it separately.
 
----
-
-## Windows Setup
+## 🪟 Windows Setup
 
 The smoothest path on Windows is **MSYS2 UCRT64**.
 
@@ -155,9 +127,7 @@ The smoothest path on Windows is **MSYS2 UCRT64**.
    ./build/AnimeTracker.exe
    ```
 
----
-
-## Visual Studio Code Setup
+## 💻 Visual Studio Code Setup
 
 You can also build straight from VS Code:
 
@@ -170,9 +140,7 @@ You can also build straight from VS Code:
 6. Run **CMake: Build**.
 7. Launch the generated executable from the `build` folder.
 
----
-
-## Using AniLog
+## 🚀 Using AniLog
 
 1. **Create an account** on first launch (Sign Up), then **log in**.
 2. Open **Add Record** to add a title - set its type (Anime/Manga), progress, rating, and status.
@@ -181,9 +149,7 @@ You can also build straight from VS Code:
 5. Review everything you have done in the **Activity Log**.
 6. Stuck? The **Help** tab has tips and common fixes built right in.
 
----
-
-## Local Data Files
+## 💾 Local Data Files
 
 AniLog writes its data as plain text next to the executable. When run from the
 `build` folder you may see:
@@ -194,37 +160,5 @@ AniLog writes its data as plain text next to the executable. When run from the
 - `imgui.ini` - saved window layout
 
 These are **local app data** and do not need to be committed to Git.
-
----
-
-## Troubleshooting
-
-**CMake says it cannot find GLFW**
-Make sure GLFW is installed for the *same* compiler/environment you are building
-with. For MSYS2 UCRT64:
-
-```bash
-pacman -S mingw-w64-ucrt-x86_64-glfw
-```
-
-**CMake cannot find `CMakeLists.txt`**
-Run CMake from the repository root (the folder that contains `CMakeLists.txt`),
-or point it there with `-S .` as shown in the build steps above.
-
-**The app builds but no window appears / it closes instantly**
-Run it from a terminal so you can read any error output, and make sure your GPU
-drivers support OpenGL 3.
-
----
-
-Built for **COMP 003 - Final Laboratory Project**.
-
----
-
-## License
-
-This project is released under the terms in the [LICENSE](LICENSE) file.
-
----
 
 <p align="center"><sub>AniLog - never lose track of what you're watching again.</sub></p>
