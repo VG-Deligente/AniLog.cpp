@@ -5,6 +5,7 @@
   <strong>A fast, native desktop tracker for your anime &amp; manga - built in modern C++.</strong>
 </p>
 <p align="center">
+  <a href="#download-windows-exe">Download EXE</a> &nbsp;&bull;&nbsp;
   <a href="#-windows-setup">Setup</a> &nbsp;&bull;&nbsp;
   <a href="#-key-features">Features</a> &nbsp;&bull;&nbsp;
   <a href="#-project-structure">Structure</a>
@@ -32,7 +33,7 @@ time - all in a snappy desktop window with no internet required.
   <img alt="Dear ImGui" src="https://img.shields.io/badge/Dear%20ImGui-1f6feb?style=for-the-badge&logoColor=white">
   <img alt="GLFW 3" src="https://img.shields.io/badge/GLFW%203-orange?style=for-the-badge&logoColor=white">
   <img alt="OpenGL 3" src="https://img.shields.io/badge/OpenGL%203-5586A4?style=for-the-badge&logo=opengl&logoColor=white">
-  <img alt="CMake 3.10+" src="https://img.shields.io/badge/CMake%203.10%2B-064F8C?style=for-the-badge&logo=cmake&logoColor=white">
+  <img alt="CMake 3.15+" src="https://img.shields.io/badge/CMake%203.15%2B-064F8C?style=for-the-badge&logo=cmake&logoColor=white">
   <img alt="Windows" src="https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white">
 </p>
 
@@ -72,12 +73,25 @@ AniLog.cpp/
 └── imgui.ini                    # ImGui window-layout state (generated at runtime)
 ```
 
+## Download Windows EXE
+
+If you only want to use AniLog, you do not need to install Git, CMake, MSYS2, or
+any build tools.
+
+1. Open the GitHub repository: <https://github.com/VG-Deligente/AniLog.cpp>
+2. Go to **Releases**.
+3. Download `AnimeTracker.exe` from the latest release.
+4. Double-click `AnimeTracker.exe` to run AniLog.
+
+AniLog saves your data next to the executable, so keep the `.exe` in a folder
+where you want its local data files to live.
+
 ## 📦 Requirements
 
 Install these before building:
 
 - **Git**
-- **CMake** 3.10 or newer
+- **CMake** 3.15 or newer
 - A **C++17** compiler
 - **GLFW 3**
 - **OpenGL** development libraries

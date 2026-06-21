@@ -1,12 +1,38 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.15)
+
+if(POLICY CMP0091)
+    cmake_policy(SET CMP0091 NEW)
+endif()
+
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
 project(AnimeTracker)
 
 # Force modern C++
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Find the GLFW library we installed via MSYS2
-find_package(glfw3 REQUIRED)
+option(ANILOG_FETCH_GLFW "Download and build GLFW from source" OFF)
+
+if(ANILOG_FETCH_GLFW)
+    include(FetchContent)
+
+    set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+    set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
+
+    FetchContent_Declare(
+        glfw
+        GIT_REPOSITORY https://github.com/glfw/glfw.git
+        GIT_TAG 3.4
+    )
+    FetchContent_MakeAvailable(glfw)
+else()
+    # Find the GLFW library installed locally, such as through MSYS2.
+    find_package(glfw3 REQUIRED)
+endif()
+
 find_package(OpenGL REQUIRED)
 
 # Tell the compiler where the ImGui files are
@@ -33,4 +59,4 @@ set(SOURCES
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 # Link the graphics libraries to the app
-target_link_libraries(${PROJECT_NAME} glfw OpenGL::GL)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw OpenGL::GL)
