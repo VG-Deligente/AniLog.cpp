@@ -62,5 +62,9 @@ if(WIN32)
     set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
 endif()
 
+if(MSVC)
+    target_link_options(${PROJECT_NAME} PRIVATE /ENTRY:mainCRTStartup)
+endif()
+
 # Link the graphics libraries to the app
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw OpenGL::GL)
