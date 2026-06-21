@@ -1,11 +1,13 @@
 // =============================================================================
 //  anilog_help.cpp
-//  TAB 5: Help — getting started, common problems, tips, about.
+//  TAB 5: Help - getting started, common problems, tips, and about text.
 // =============================================================================
 
 #include "anilog_globals.h"
 
 void RenderHelpTab() {
+    // Page heading. The rest of the content is inside one scroll region so the
+    // Help tab can grow without affecting the dashboard frame.
     ImGui::SetWindowFontScale(FONT_SCALE_HEADER);
     ImGui::TextColored(COLOR_ACCENT_BLUE, "Help Guide");
     ImGui::Separator(); ImGui::Spacing();
@@ -16,7 +18,8 @@ void RenderHelpTab() {
     ImGui::BeginChild("HelpScroll", ImVec2(0, 0), false, ImGuiWindowFlags_NoBackground);
     ImGui::SetWindowFontScale(FONT_SCALE_BODY);
 
-    // ── Getting Started ──
+    // -- Getting Started --
+    // Short onboarding flow for first-time users.
     ImGui::SetWindowFontScale(FONT_SCALE_SECTION);
     ImGui::TextColored(COLOR_ACCENT_GREEN, "Getting Started");
     ImGui::SetWindowFontScale(FONT_SCALE_BODY);
@@ -26,7 +29,8 @@ void RenderHelpTab() {
     ImGui::TextWrapped("3. Your entry will appear in AniDex under Active, Completed, or Dropped.");
     ImGui::Spacing(); ImGui::Spacing();
 
-    // ── Common Problems ──
+    // -- Common Problems --
+    // Keep this list focused on issues users can solve without reading the code.
     ImGui::SetWindowFontScale(FONT_SCALE_SECTION);
     ImGui::TextColored(COLOR_ACCENT_ORANGE, "Common Problems");
     ImGui::SetWindowFontScale(FONT_SCALE_BODY);
@@ -56,7 +60,8 @@ void RenderHelpTab() {
     ImGui::TextWrapped("    Stats are calculated live from your library. Add some records first and they will populate.");
     ImGui::Spacing(); ImGui::Spacing();
 
-    // ── Tips ──
+    // -- Tips & Tricks --
+    // Practical shortcuts and behavior notes for regular use.
     ImGui::SetWindowFontScale(FONT_SCALE_SECTION);
     ImGui::TextColored(COLOR_ACCENT_PURPLE, "Tips & Tricks");
     ImGui::SetWindowFontScale(FONT_SCALE_BODY);
@@ -67,14 +72,15 @@ void RenderHelpTab() {
     ImGui::Spacing();
     ImGui::TextWrapped("- '+1 Episode / +1 Chapter' in AniDex is the fastest way to log progress without opening the Edit form.");
     ImGui::Spacing();
-    ImGui::TextWrapped("- Completed titles can be Rewatched or Reread — this resets progress to 0 and moves them back to Active.");
+    ImGui::TextWrapped("- Completed titles can be Rewatched or Reread - this resets progress to 0 and moves them back to Active.");
     ImGui::Spacing();
     ImGui::TextWrapped("- Dropped titles can be Resumed at any time from the Dropped section in AniDex.");
     ImGui::Spacing();
-    ImGui::TextWrapped("- The Statistics tab updates in real time — check it after adding records to see your progress overview, donut, and bar charts.");
+    ImGui::TextWrapped("- The Statistics tab updates in real time - check it after adding records to see your progress overview.");
     ImGui::Spacing(); ImGui::Spacing();
 
-    // ── About ──
+    // -- About --
+    // Project identity and stack information.
     ImGui::SetWindowFontScale(FONT_SCALE_SECTION);
     ImGui::TextColored(COLOR_MUTED, "About");
     ImGui::SetWindowFontScale(FONT_SCALE_BODY);

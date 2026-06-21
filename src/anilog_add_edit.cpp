@@ -56,6 +56,8 @@ void RenderAddEditTab(ImVec2 center) {
     ImGui::Spacing(); ImGui::Spacing();
 
     // -- Validation --
+    // Keep validation close to the form so the disabled Save state and the
+    // visible error message always use the same rules.
     string validationMsg = "";
     string titleStr  = trimStr(string(inputTitle));
     bool   titleBlank= titleStr.empty();
@@ -87,6 +89,8 @@ void RenderAddEditTab(ImVec2 center) {
     ImGui::Spacing(); ImGui::Spacing();
 
     // -- Progress fields side by side --
+    // Current and total are clamped immediately after input so the save handler
+    // can assume progress is always within 0..total.
     float halfW = (formW - 16.0f) * 0.5f;
     ImGui::SetCursorPosX(offsetX);
     ImGui::TextColored(COLOR_LABEL,
@@ -137,6 +141,8 @@ void RenderAddEditTab(ImVec2 center) {
     ImGui::Spacing(); ImGui::Spacing();
 
     // -- Status --
+    // Anime and manga use different active labels, but Completed/Dropped share
+    // the same indices. Keep these option arrays aligned in anilog_utils.cpp.
     ImGui::SetCursorPosX(offsetX);
     ImGui::TextColored(COLOR_LABEL, "Status");
     ImGui::SetCursorPosX(offsetX);
@@ -146,6 +152,8 @@ void RenderAddEditTab(ImVec2 center) {
     ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 
     // -- Save / Cancel buttons --
+    // The button is visually disabled when validation fails. The canSave check
+    // is also kept in the click condition so invalid records cannot be written.
     bool  canSave = !titleBlank && !titleDupe;
     float btnW    = (formW - 12.0f) * 0.5f;
 
@@ -158,6 +166,8 @@ void RenderAddEditTab(ImVec2 center) {
 
     if (ImGui::Button(isEdit ? "Save Changes" : "Save Record", ImVec2(btnW, 48)) && canSave) {
         if (currentTab == ADD_MEDIA) {
+            // Add mode builds a new MediaRecord from the shared form buffers.
+            // If progress is already complete, the record starts in Completed.
             MediaRecord newMedia;
             newMedia.title           = titleStr;
             newMedia.type            = typeOptions[inputTypeIndex];
@@ -179,6 +189,8 @@ void RenderAddEditTab(ImVec2 center) {
                       + ", Rating: " + to_string(newMedia.rating));
         } else {
             if (editingIndex >= 0 && editingIndex < (int)currentLibrary.size()) {
+                // Edit mode updates the existing row in place. The "before"
+                // copy is only used to produce a useful Activity Log summary.
                 MediaRecord before = currentLibrary[editingIndex];
                 currentLibrary[editingIndex].title           = titleStr;
                 currentLibrary[editingIndex].type            = typeOptions[inputTypeIndex];

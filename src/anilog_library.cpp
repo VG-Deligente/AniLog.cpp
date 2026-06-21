@@ -7,12 +7,16 @@
 #include <algorithm>
 
 void RenderLibraryTab(ImVec2 center) {
+    // Tab heading and common table styling. All three sections below reuse
+    // tableFlags so borders, row striping, and sizing stay visually consistent.
     ImGui::SetWindowFontScale(FONT_SCALE_HEADER);
     ImGui::TextColored(COLOR_ACCENT_BLUE, "AniDex - My Media Vault");
     ImGui::SetWindowFontScale(FONT_SCALE_BODY);
     ImGui::Separator(); ImGui::Spacing();
 
-    // -- Search and Filter bar --
+    // -- Search / filter / sort toolbar --
+    // Search and type filters affect only what rows are shown. Sort buttons
+    // reorder currentLibrary itself, so the new order remains while switching tabs.
     ImGui::SetNextItemWidth(300);
     ImGui::InputTextWithHint("##search", "Search title...", searchBuffer, IM_ARRAYSIZE(searchBuffer));
     string searchStr = toLowerStr(searchBuffer);
@@ -38,7 +42,9 @@ void RenderLibraryTab(ImVec2 center) {
                                | ImGuiTableFlags_RowBg
                                | ImGuiTableFlags_SizingStretchProp;
 
-    // Helper lambda for filter checks
+    // Shared row predicate for all three tables. A blank status means "match
+    // any non-final active status"; explicit statuses are used by Completed
+    // and Dropped sections.
     auto passesFilter = [&](int i, const string& status) -> bool {
         if (!status.empty() && currentLibrary[i].status != status) return false;
         if (currentFilterIndex == 1 && currentLibrary[i].type != "Anime") return false;
@@ -48,6 +54,9 @@ void RenderLibraryTab(ImVec2 center) {
     };
 
     // -- ACTIVE TABLE --
+    // Active records are everything not Completed and not Dropped. This table
+    // has the quick +1 progress action because these are the titles currently
+    // being watched/read.
     ImGui::SetWindowFontScale(FONT_SCALE_SECTION);
     ImGui::TextColored(COLOR_ACCENT_BLUE, "Active");
     ImGui::SetWindowFontScale(FONT_SCALE_BODY);
@@ -71,6 +80,8 @@ void RenderLibraryTab(ImVec2 center) {
         ImGui::TableSetupColumn("Actions",  ImGuiTableColumnFlags_WidthStretch, 2.5f);
         ImGui::TableHeadersRow();
 
+        // Deletion is deferred until after the table loop. Erasing from
+        // currentLibrary while iterating would invalidate indices still in use.
         int deleteTarget = -1;
 
         for (int i = 0; i < (int)currentLibrary.size(); i++) {
@@ -86,6 +97,8 @@ void RenderLibraryTab(ImVec2 center) {
 
             ImGui::PushID(i);
 
+            // Quick progress update. When progress reaches the total, the record
+            // automatically moves to Completed and records the finish date.
             if (currentLibrary[i].currentProgress < currentLibrary[i].totalProgress) {
                 string btnLabel = (currentLibrary[i].type == "Anime") ? "+1 Episode" : "+1 Chapter";
                 if (ImGui::Button(btnLabel.c_str(), ImVec2(130, 0))) {
@@ -105,6 +118,8 @@ void RenderLibraryTab(ImVec2 center) {
                 ImGui::SameLine();
             }
 
+            // Copy the selected row into the shared Add/Edit buffers, then let
+            // RenderAddEditTab handle the actual editing screen.
             if (ImGui::Button("Edit")) {
                 editingIndex   = i;
                 snprintf(inputTitle, sizeof(inputTitle), "%s", currentLibrary[i].title.c_str());
@@ -119,6 +134,8 @@ void RenderLibraryTab(ImVec2 center) {
             }
             ImGui::SameLine();
 
+            // Destructive actions use a per-row popup id so multiple rows can
+            // safely render their own confirmation dialog in the same table.
             ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.7f, 0.2f, 0.2f, 1.0f));
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.3f, 0.3f, 1.0f));
             string delPopupId = "DelConf_Active_" + to_string(i);
@@ -154,6 +171,8 @@ void RenderLibraryTab(ImVec2 center) {
     ImGui::Spacing(); ImGui::Spacing();
 
     // -- COMPLETED TABLE --
+    // Completed records show date finished and rewatch/reread count. Restarting
+    // a title moves it back to Active while preserving history through rereadCount.
     ImGui::SetWindowFontScale(FONT_SCALE_SECTION);
     ImGui::TextColored(COLOR_ACCENT_GREEN, "Completed");
     ImGui::SetWindowFontScale(FONT_SCALE_BODY);
@@ -176,6 +195,7 @@ void RenderLibraryTab(ImVec2 center) {
         ImGui::TableSetupColumn("Actions",       ImGuiTableColumnFlags_WidthStretch, 2.5f);
         ImGui::TableHeadersRow();
 
+        // Same deferred-delete pattern as the Active table.
         int completedDelete_target = -1;
 
         for (int i = 0; i < (int)currentLibrary.size(); i++) {
@@ -190,6 +210,8 @@ void RenderLibraryTab(ImVec2 center) {
             ImGui::TableSetColumnIndex(4); ImGui::Text("%d", currentLibrary[i].rereadCount);
             ImGui::TableSetColumnIndex(5);
 
+            // Restart keeps the record but resets progress, clears the finish
+            // date, and increments the lifetime rewatch/reread counter.
             string rBtnLabel = (currentLibrary[i].type == "Anime") ? "Rewatch" : "Reread";
             string rPopupId  = "RewatchConf_" + to_string(i);
             if (ImGui::Button(rBtnLabel.c_str(), ImVec2(110, 0)))
@@ -217,6 +239,7 @@ void RenderLibraryTab(ImVec2 center) {
             }
 
             ImGui::SameLine();
+            // Completed rows always preload the status picker to Completed.
             if (ImGui::Button("Edit")) {
                 editingIndex     = i;
                 snprintf(inputTitle, sizeof(inputTitle), "%s", currentLibrary[i].title.c_str());
@@ -263,6 +286,8 @@ void RenderLibraryTab(ImVec2 center) {
     ImGui::Spacing(); ImGui::Spacing();
 
     // -- DROPPED TABLE --
+    // Dropped records are separated so they do not clutter Active, but Resume
+    // can move them back without opening the edit form.
     ImGui::SetWindowFontScale(FONT_SCALE_SECTION);
     ImGui::TextColored(COLOR_ACCENT_ORANGE, "Dropped");
     ImGui::SetWindowFontScale(FONT_SCALE_BODY);
@@ -285,6 +310,7 @@ void RenderLibraryTab(ImVec2 center) {
         ImGui::TableSetupColumn("Actions",  ImGuiTableColumnFlags_WidthStretch, 2.5f);
         ImGui::TableHeadersRow();
 
+        // Same deferred-delete pattern as the other tables.
         int droppedDelete_target = -1;
 
         for (int i = 0; i < (int)currentLibrary.size(); i++) {
@@ -299,6 +325,7 @@ void RenderLibraryTab(ImVec2 center) {
             ImGui::TableSetColumnIndex(4); ImGui::Text("%s", currentLibrary[i].dateStarted.empty() ? "-" : currentLibrary[i].dateStarted.c_str());
             ImGui::TableSetColumnIndex(5);
 
+            // Resume picks the correct active status based on media type.
             if (ImGui::Button("Resume", ImVec2(90, 0))) {
                 currentLibrary[i].status = (currentLibrary[i].type == "Anime") ? "Watching" : "Reading";
                 logActivity("Status Changed: [" + currentLibrary[i].title + "] resumed from Dropped.");

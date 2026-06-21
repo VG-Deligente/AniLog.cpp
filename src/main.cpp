@@ -48,6 +48,8 @@ bool registerUser(const string& username, const string& password);
 void clearMessage();
 
 #if defined(_WIN32)
+// GLFW creates the window, but Windows needs explicit WM_SETICON messages for
+// the title bar/taskbar to use the same icon embedded in resources/anilog.rc.
 static void setWindowsAppIcon(GLFWwindow* window) {
     HINSTANCE instance = GetModuleHandleA(nullptr);
     HWND hwnd = glfwGetWin32Window(window);
@@ -76,6 +78,8 @@ static void setWindowsAppIcon(GLFWwindow* window) {
 
 int main() {
     // -- Window and graphics setup --
+    // GLFW owns the native window and OpenGL context; ImGui is initialized
+    // afterward so it can render into that context every frame.
     if (!glfwInit()) return 1;
     GLFWwindow* window = glfwCreateWindow(1280, 720, "AniLog - Media Tracker", NULL, NULL);
     if (!window) { glfwTerminate(); return 1; }
@@ -89,6 +93,8 @@ int main() {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
 
+    // Global ImGui theme. Shared colors used across tabs live in
+    // anilog_globals.h, while these values tune ImGui's base widgets.
     ImGui::StyleColorsDark();
     ImGuiStyle& style = ImGui::GetStyle();
     style.WindowRounding   = 8.0f;
@@ -107,6 +113,8 @@ int main() {
     style.Colors[ImGuiCol_FrameBg]        = ImVec4(0.20f, 0.20f, 0.25f, 1.0f);
     style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.25f, 0.25f, 0.30f, 1.0f);
 
+    // Users are loaded once on startup. A user's personal library/logs are
+    // loaded only after successful login.
     loadUsers();
 
     char usernameInput[64] = "";
@@ -132,6 +140,8 @@ int main() {
         //  LOGIN / SIGNUP SCREEN
         // =====================================================================
         if (currentScreen == LOGIN || currentScreen == SIGNUP) {
+            // Login and Signup share one centered modal-style window. The mode
+            // changes labels and button behavior, but the layout stays identical.
             float winW = 600.0f, winH = 640.0f, elemW = 480.0f;
             float offsetX = (winW - elemW) * 0.5f;
 
@@ -184,6 +194,8 @@ int main() {
             ImGui::Spacing(); ImGui::Spacing();
             ImGui::SetCursorPosX(offsetX);
 
+            // Submit buttons call the auth helpers in anilog_utils.cpp. Those
+            // helpers set authMessage/isAuthError, so the UI only displays state.
             if (currentScreen == LOGIN) {
                 if (ImGui::Button("Log In", ImVec2(elemW, 50))) {
                     if (loginUser(usernameInput, passwordInput)) {
@@ -232,6 +244,8 @@ int main() {
         else if (currentScreen == DASHBOARD) {
 
             // -- SIDEBAR --
+            // The sidebar is a fixed-width navigation window. It owns the main
+            // tab switcher and the logout confirmation flow.
             ImGui::SetNextWindowPos(ImVec2(0, 0));
             ImGui::SetNextWindowSize(ImVec2(250, io.DisplaySize.y));
             ImGui::Begin("Sidebar", nullptr,
@@ -246,6 +260,8 @@ int main() {
             ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "User: %s", loggedInUser.c_str());
             ImGui::Spacing(); ImGui::Separator(); ImGui::Spacing();
 
+            // Shared sidebar button behavior. If the Add/Edit form has text in
+            // it, navigation asks for confirmation before discarding the buffers.
             auto sidebarBtn = [&](const char* label, DashboardTab tab) {
                 bool isActive = (currentTab == tab);
                 if (isActive) {
@@ -277,6 +293,8 @@ int main() {
             ImVec2 center = ImGui::GetMainViewport()->GetCenter();
 
             // Unsaved Changes popup
+            // This protects users from losing a partially filled Add/Edit form.
+            // pendingTab remembers where they were trying to go.
             ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
             if (ImGui::BeginPopupModal("Unsaved Changes", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
                 ImGui::Text("You have unsaved changes.");
@@ -309,6 +327,8 @@ int main() {
             ImGui::PopStyleColor(2);
 
             // Logout confirmation modal
+            // Logout clears all session-specific memory so the next user starts
+            // with a clean dashboard after logging in.
             ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
             if (ImGui::BeginPopupModal("Logout Confirmation", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
                 ImGui::Text("Are you sure you want to logout?");
@@ -336,6 +356,8 @@ int main() {
             ImGui::End(); // End sidebar
 
             // -- MAIN CONTENT AREA --
+            // The content window fills all space to the right of the sidebar.
+            // Individual tabs are rendered from separate source files.
             ImGui::SetNextWindowPos(ImVec2(250, 0));
             ImGui::SetNextWindowSize(ImVec2(io.DisplaySize.x - 250, io.DisplaySize.y));
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(24.0f, 22.0f));
@@ -356,6 +378,8 @@ int main() {
         }
 
         // -- Render frame --
+        // ImGui builds draw commands above; OpenGL clears the screen and renders
+        // those commands here, then GLFW swaps the completed frame onscreen.
         ImGui::Render();
         glClearColor(0.10f, 0.10f, 0.12f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -364,6 +388,7 @@ int main() {
     }
 
     // -- Cleanup --
+    // Shut down in the reverse order of initialization.
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();

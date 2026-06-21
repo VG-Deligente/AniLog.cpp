@@ -47,7 +47,10 @@ const char* mangaStatusOptions[] = { "Reading",  "Completed", "Dropped" };
 const char* filterOptions[]      = { "All Media", "Anime Only", "Manga Only" };
 
 // =============================================================================
-//  UTILITY FUNCTIONS
+//  BASIC STRING / DATE HELPERS
+// -----------------------------------------------------------------------------
+//  These helpers keep validation and log formatting consistent across tabs.
+//  If the app ever changes date format or title-matching rules, start here.
 // =============================================================================
 string getCurrentDate() {
     time_t now = time(0);
@@ -79,6 +82,8 @@ void logActivity(const string& action) {
     if (file.is_open()) { file << entry << "\n"; file.close(); }
 }
 
+// Builds a compact "field A -> field B" summary for edit history entries.
+// This is only for the Activity Log, not for saving data.
 string buildChangeSummary(const MediaRecord& before, const MediaRecord& after) {
     string changes = "";
     if (before.title != after.title)
@@ -115,6 +120,13 @@ bool sortProgressDesc(const MediaRecord& a, const MediaRecord& b) {
 
 // =============================================================================
 //  FILE HANDLING
+// -----------------------------------------------------------------------------
+//  The app uses simple text files in the working directory:
+//    users.txt                  -> all registered users
+//    <username>_library.txt     -> one pipe-delimited MediaRecord per line
+//    <username>_logs.txt        -> one activity-log entry per line
+//
+//  Keep loadLibrary() and saveLibrary() in sync whenever MediaRecord changes.
 // =============================================================================
 void loadUsers() {
     ifstream file("users.txt");
@@ -134,6 +146,8 @@ void loadLibrary() {
     currentLibrary.clear();
     activityLogs.clear();
 
+    // Load the user's saved media records and clamp values that could become
+    // invalid because of manual file edits or older app versions.
     ifstream file(loggedInUser + "_library.txt");
     if (file.is_open()) {
         string line;
@@ -164,6 +178,8 @@ void loadLibrary() {
         file.close();
     }
 
+    // Load the user's activity log after the library so both dashboard tabs
+    // are ready as soon as login succeeds.
     ifstream logFile(loggedInUser + "_logs.txt");
     if (logFile.is_open()) {
         string logLine;
@@ -174,6 +190,8 @@ void loadLibrary() {
 }
 
 void saveLibrary() {
+    // Rewrite the whole library file from memory. This is simple and reliable
+    // for the small local data files used by the project.
     ofstream file(loggedInUser + "_library.txt");
     if (file.is_open()) {
         for (int i = 0; i < (int)currentLibrary.size(); i++) {
@@ -193,11 +211,17 @@ void saveLibrary() {
 }
 
 // =============================================================================
-//  AUTHENTICATION
+//  AUTHENTICATION AND FORM STATE
+// -----------------------------------------------------------------------------
+//  Authentication is intentionally local/simple for this class project: usernames
+//  and passwords are stored in users.txt. Login also loads that user's library
+//  and writes a log entry so the session history starts immediately.
 // =============================================================================
 void clearMessage() { authMessage = ""; isAuthError = false; }
 
 bool registerUser(const string& username, const string& password) {
+    // Validate the input first, then compare usernames case-insensitively so
+    // "Mika" and "mika" cannot become two separate accounts.
     string trimmedUser = trimStr(username);
     if (trimmedUser.empty() || password.empty()) {
         authMessage = "All fields are required."; isAuthError = true; return false;
@@ -221,6 +245,8 @@ bool registerUser(const string& username, const string& password) {
 }
 
 bool loginUser(const string& username, const string& password) {
+    // Login mirrors registration's trim/case rules, then initializes all
+    // per-user data used by the dashboard.
     string trimmedUser = trimStr(username);
     if (trimmedUser.empty() || password.empty()) {
         authMessage = "Please fill in both fields."; isAuthError = true; return false;
@@ -240,6 +266,8 @@ bool loginUser(const string& username, const string& password) {
 }
 
 void resetForm() {
+    // Return the Add/Edit form to its default "new anime" state. This is called
+    // after save, cancel, logout, and when starting a fresh Add Record flow.
     inputTitle[0]    = '\0';
     inputTypeIndex   = 0;
     inputCurrent     = 0;
@@ -250,6 +278,8 @@ void resetForm() {
 }
 
 bool titleExists(const string& title, int excludeIndex) {
+    // Used by Add/Edit validation. excludeIndex lets the edit form keep the
+    // record's original title without treating it as its own duplicate.
     string lowerNew = toLowerStr(trimStr(title));
     for (int i = 0; i < (int)currentLibrary.size(); i++) {
         if (i == excludeIndex) continue;

@@ -19,6 +19,8 @@ void RenderStatisticsTab() {
     ImGui::Separator(); ImGui::Spacing();
 
     // -- Aggregate all stats in a single pass --
+    // Statistics are not cached. Recomputing from currentLibrary each frame
+    // keeps this tab correct after any add/edit/delete/progress action.
     int totalAnime = 0, totalManga = 0;
     int epsWatched = 0, chsRead = 0;
     int completedCnt = 0, droppedCnt = 0, watchingCnt = 0, readingCnt = 0;
@@ -28,7 +30,8 @@ void RenderStatisticsTab() {
     for (int i = 0; i < (int)currentLibrary.size(); i++) {
         const MediaRecord& m = currentLibrary[i];
         
-        // Calculate true progress including rewatches/rereads
+        // Count lifetime progress by adding full completed runs from
+        // rewatches/rereads to the current in-progress run.
         int totalMediaProgress = m.currentProgress + (m.rereadCount * m.totalProgress);
 
         if (m.type == "Anime") { 
@@ -59,6 +62,8 @@ void RenderStatisticsTab() {
                               | ImGuiTableFlags_SizingStretchProp;
 
     // -- SECTION 1: Overall Vault Status --
+    // This is the high-level library breakdown: type counts, status counts,
+    // and the percentage of all tracked records that are completed.
     ImGui::SetWindowFontScale(FONT_SCALE_SECTION);
     ImGui::TextColored(COLOR_ACCENT_GREEN, "Overall Vault Status");
     ImGui::SetWindowFontScale(FONT_SCALE_BODY);
@@ -69,6 +74,7 @@ void RenderStatisticsTab() {
         ImGui::TableSetupColumn("Value",     ImGuiTableColumnFlags_WidthStretch, 1.0f);
         ImGui::TableHeadersRow();
 
+        // Local helper keeps every stats row formatted the same way.
         auto statRow = [](const char* label, const char* value) {
             ImGui::TableNextRow();
             ImGui::TableSetColumnIndex(0); ImGui::SetWindowFontScale(FONT_SCALE_BODY); ImGui::Text("%s", label);
@@ -89,6 +95,8 @@ void RenderStatisticsTab() {
     ImGui::Spacing(); ImGui::Spacing();
 
     // -- SECTION 2: Progress Metrics --
+    // These are progress-quality metrics rather than status counts, including
+    // lifetime watched/read progress and average rating.
     ImGui::SetWindowFontScale(FONT_SCALE_SECTION);
     ImGui::TextColored(COLOR_ACCENT_BLUE, "Progress Metrics");
     ImGui::SetWindowFontScale(FONT_SCALE_BODY);
@@ -99,6 +107,7 @@ void RenderStatisticsTab() {
         ImGui::TableSetupColumn("Value",  ImGuiTableColumnFlags_WidthStretch, 1.0f);
         ImGui::TableHeadersRow();
 
+        // Same row helper repeated here so each table remains self-contained.
         auto statRow = [](const char* label, const char* value) {
             ImGui::TableNextRow();
             ImGui::TableSetColumnIndex(0); ImGui::SetWindowFontScale(FONT_SCALE_BODY); ImGui::Text("%s", label);
