@@ -1,142 +1,230 @@
-# AniLog.cpp
+<h1 align="center">AniLog</h1>
 
-AniLog is a native desktop anime and manga tracker built with C++, CMake,
-OpenGL, GLFW, and Dear ImGui. It stores your account, library, and activity log
-locally on your computer.
+<p align="center">
+  <strong>A fast, native desktop tracker for your anime &amp; manga - built in modern C++.</strong>
+</p>
 
-> Status: Active development. The app is usable, but features and UI details may
-> still change.
 
-## Features
+<p align="center">
+  <img src="image.png" alt="AniLog - Anime &amp; Manga Media Tracker" width="820">
+</p>
 
-- Track anime and manga titles in a local library.
-- Save progress, total episodes or chapters, ratings, and status.
-- Edit and delete existing library entries.
-- Search and filter by media type.
-- View activity logs and statistics.
-- Keep user data local instead of relying on a cloud service.
+<p align="center">
+  <a href="#windows-setup">Setup</a> &nbsp;&bull;&nbsp;
+  <a href="#key-features">Features</a> &nbsp;&bull;&nbsp;
+  <a href="#project-structure">Structure</a> &nbsp;&bull;&nbsp;
+  <a href="#troubleshooting">Troubleshooting</a>
+</p>
+
+---
+
+## About AniLog
+
+AniLog is a **native desktop application** for keeping track of the anime you are
+watching and the manga you are reading. Instead of relying on a website or a
+cloud account, AniLog stores everything **locally on your own machine** in plain
+text files - your library, your progress, your ratings, and a full activity log.
+
+It is built as a learning-focused but genuinely usable C++ project: a clean,
+multi-file codebase rendered with an immediate-mode GUI. You log in, add titles,
+update your progress as you watch or read, and watch your stats fill in over
+time - all in a snappy desktop window with no internet required.
+
+> **Status:** Active development. The app is fully usable; UI details and
+> features may still evolve.
+
+---
+
+## Tech Stack
+
+<p align="center">
+  <img alt="C++17" src="https://img.shields.io/badge/C%2B%2B-17-00599C?style=for-the-badge&logo=cplusplus&logoColor=white">
+  <img alt="Dear ImGui" src="https://img.shields.io/badge/Dear%20ImGui-1f6feb?style=for-the-badge&logoColor=white">
+  <img alt="GLFW 3" src="https://img.shields.io/badge/GLFW%203-orange?style=for-the-badge&logoColor=white">
+  <img alt="OpenGL 3" src="https://img.shields.io/badge/OpenGL%203-5586A4?style=for-the-badge&logo=opengl&logoColor=white">
+  <img alt="CMake 3.10+" src="https://img.shields.io/badge/CMake%203.10%2B-064F8C?style=for-the-badge&logo=cmake&logoColor=white">
+  <img alt="Windows" src="https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white">
+</p>
+
+<p align="center"><sub>Built in modern C++ with an immediate-mode Dear ImGui interface, GLFW windowing, OpenGL rendering, a CMake build, and 100% local plain-text storage (no database, no cloud).</sub></p>
+
+---
+
+## Key Features
+
+- **Local accounts** - sign up and log in; each user gets their own private library and logs.
+- **Track anime &amp; manga** - store title, type, current/total progress, a 1-5 star rating, and status.
+- **AniDex library view** - browse your collection split into **Active**, **Completed**, and **Dropped** tables.
+- **Quick progress** - bump episodes/chapters with a single `+1` button; titles auto-complete when they hit their total.
+- **Add / Edit form** - one consistent form for creating and editing records, with live validation (no blank or duplicate titles).
+- **Search &amp; filter** - find titles by name and filter by media type, with one-click sorting (A-Z, Z-A, rating, progress).
+- **Rewatch / Reread &amp; Resume** - restart completed titles or pick dropped ones back up.
+- **Statistics tab** - live totals, progress metrics, and insights (most-watched, highest-rated, completion rate) presented as clean tables.
+- **Activity log** - a timestamped history of everything you do, grouped by date, newest first.
+- **Built-in Help tab** - getting-started notes, tips, and common fixes inside the app.
+- **100% offline** - your data never leaves your computer.
+
+---
+
+## Project Structure
+
+```
+AniLog.cpp/
+├── include/imgui/             # Vendored Dear ImGui source files
+├── src/
+│   ├── main.cpp               # Window setup, render loop, sidebar, login/signup
+│   ├── anilog_globals.h       # Shared "contract": fonts, colors, structs, enums, declarations
+│   ├── anilog_utils.cpp       # Global definitions, file I/O, auth, sorting helpers
+│   ├── anilog_library.cpp     # TAB 1: AniDex (Active / Completed / Dropped tables)
+│   ├── anilog_add_edit.cpp    # TAB 2: Add / Edit record form
+│   ├── anilog_statistics.cpp  # TAB 3: Statistics (totals, metrics, insights)
+│   ├── anilog_activity_log.cpp# TAB 4: Activity log
+│   └── anilog_help.cpp        # TAB 5: Help guide
+├── CMakeLists.txt             # CMake build configuration
+├── README.md                  # You are here
+├── LICENSE
+└── imgui.ini                  # ImGui window-layout state (generated at runtime)
+```
+
+**Where to change things (quick map):**
+
+| I want to change...                | Go to |
+| ---------------------------------- | ----- |
+| Text size across the whole app     | `FONT_SCALE_*` in `anilog_globals.h` |
+| Shared accent colors               | `COLOR_*` in `anilog_globals.h` |
+| What a saved record looks like     | `MediaRecord` struct in `anilog_globals.h` |
+| A specific tab's layout/behavior   | the matching `anilog_<tab>.cpp` file |
+| Sidebar / login text size          | the `SetWindowFontScale` calls in `main.cpp` |
+
+---
 
 ## Requirements
 
-Before building AniLog, install these tools:
+Install these before building:
 
-- Git
-- CMake 3.10 or newer
-- A C++17 compiler
-- GLFW 3
-- OpenGL development libraries
+- **Git**
+- **CMake** 3.10 or newer
+- A **C++17** compiler
+- **GLFW 3**
+- **OpenGL** development libraries
 
-The project already includes the Dear ImGui source files under `include/imgui`,
-so you do not need to install ImGui separately.
+> Dear ImGui is already included under `include/imgui`, so you do **not** need to
+> install it separately.
+
+---
 
 ## Windows Setup
 
-The easiest Windows setup is through MSYS2 UCRT64.
+The smoothest path on Windows is **MSYS2 UCRT64**.
 
-1. Install MSYS2 from <https://www.msys2.org/>.
+1. **Install MSYS2** from <https://www.msys2.org/>.
+
 2. Open the **MSYS2 UCRT64** terminal.
-3. Update MSYS2:
 
-   ```sh
+3. **Update MSYS2:**
+
+   ```bash
    pacman -Syu
    ```
 
-   If MSYS2 asks you to close the terminal, close it, reopen **MSYS2 UCRT64**,
-   then run the same command again.
+   If it asks you to close the terminal, close it, reopen **MSYS2 UCRT64**, and run the command again.
 
-4. Install the build tools and GLFW:
+4. **Install the build tools and GLFW:**
 
-   ```sh
+   ```bash
    pacman -S --needed git mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-glfw
    ```
 
-5. Clone the repository:
+5. **Clone the repository:**
 
-   ```sh
+   ```bash
    git clone https://github.com/VG-Deligente/AniLog.cpp.git
    cd AniLog.cpp
    ```
 
-6. Configure and build the project:
+6. **Configure and build:**
 
-   ```sh
+   ```bash
    cmake -S . -B build -G "MinGW Makefiles"
    cmake --build build
    ```
 
-7. Run the app:
+7. **Run the app:**
 
-   ```sh
+   ```bash
    ./build/AnimeTracker.exe
    ```
 
+---
+
 ## Visual Studio Code Setup
 
-You can also build the project from VS Code.
+You can also build straight from VS Code:
 
-1. Install the **C/C++** extension from Microsoft.
-2. Install the **CMake Tools** extension from Microsoft.
+1. Install the **C/C++** extension (Microsoft).
+2. Install the **CMake Tools** extension (Microsoft).
 3. Open the cloned `AniLog.cpp` folder in VS Code.
-4. Select your compiler kit when CMake Tools asks.
-   - On Windows with MSYS2, choose the UCRT64 GCC compiler.
+4. When CMake Tools prompts for a kit, pick your compiler.
+   - On Windows with MSYS2, choose the **UCRT64 GCC** compiler.
 5. Run **CMake: Configure**.
 6. Run **CMake: Build**.
-7. Run the generated executable from the `build` folder.
+7. Launch the generated executable from the `build` folder.
 
-## Project Structure
+---
 
-```text
-AniLog.cpp/
-├── include/imgui/     # Vendored Dear ImGui source files
-├── src/main.cpp       # Main application source
-├── CMakeLists.txt     # CMake build configuration
-├── README.md          # Project instructions
-└── LICENSE
-```
+## Using AniLog
+
+1. **Create an account** on first launch (Sign Up), then **log in**.
+2. Open **Add Record** to add a title - set its type (Anime/Manga), progress, rating, and status.
+3. In **AniDex**, use **`+1 Episode` / `+1 Chapter`** to log progress; titles move to **Completed** automatically when they reach their total.
+4. Check the **Statistics** tab to see your totals, progress metrics, and insights update live.
+5. Review everything you have done in the **Activity Log**.
+6. Stuck? The **Help** tab has tips and common fixes built right in.
+
+---
 
 ## Local Data Files
 
-AniLog saves user data in text files next to the executable. If you run the app
-from the `build` folder, generated files may include:
+AniLog writes its data as plain text next to the executable. When run from the
+`build` folder you may see:
 
-- `users.txt`
-- `<username>_library.txt`
-- `<username>_logs.txt`
-- `imgui.ini`
+- `users.txt` - registered accounts
+- `<username>_library.txt` - that user's tracked titles
+- `<username>_logs.txt` - that user's activity log
+- `imgui.ini` - saved window layout
 
-These files are local app data. They do not need to be committed to Git.
+These are **local app data** and do not need to be committed to Git.
+
+---
 
 ## Troubleshooting
 
-### CMake says it cannot find GLFW
+**CMake says it cannot find GLFW**
+Make sure GLFW is installed for the *same* compiler/environment you are building
+with. For MSYS2 UCRT64:
 
-Make sure GLFW is installed for the same compiler and environment you are using.
-For example, if you build with MSYS2 UCRT64, install the UCRT64 GLFW package:
-
-```sh
+```bash
 pacman -S mingw-w64-ucrt-x86_64-glfw
 ```
 
-### CMake cannot find `CMakeLists.txt`
+**CMake cannot find `CMakeLists.txt`**
+Run CMake from the repository root (the folder that contains `CMakeLists.txt`),
+or point it there with `-S .` as shown in the build steps above.
 
-The build file must be named exactly `CMakeLists.txt`. If your local copy has a
-different capitalization, rename it before running CMake.
+**The app builds but no window appears / it closes instantly**
+Run it from a terminal so you can read any error output, and make sure your GPU
+drivers support OpenGL 3.
 
-### The app builds but does not open
+---
 
-Make sure your graphics drivers support OpenGL and that you are running the app
-from a desktop session, not from a headless terminal or remote shell without GUI
-support.
+Built for **COMP 003 - Final Laboratory Project**.
 
-### Windows cannot find DLL files
-
-Run the app from the MSYS2 UCRT64 terminal, or add the UCRT64 `bin` folder to
-your `PATH`. A common path is:
-
-```text
-C:\msys64\ucrt64\bin
-```
+---
 
 ## License
 
-This project is licensed under the terms in [LICENSE](LICENSE).
+This project is released under the terms in the [LICENSE](LICENSE) file.
+
+---
+
+<p align="center"><sub>AniLog - never lose track of what you're watching again.</sub></p>
