@@ -79,8 +79,8 @@ If you only want to use AniLog, you do not need to install Git, CMake, MSYS2, or
 any build tools.
 
 1. Go to **Releases**.
-2. Download `AnimeTracker.exe` from the latest release.
-3. Double-click `AnimeTracker.exe` to run AniLog.
+2. Download `AniLog.exe` from the latest release.
+3. Double-click `AniLog.exe` to run AniLog.
 
 AniLog saves your data next to the executable, so keep the `.exe` in a folder
 where you want its local data files to live.
@@ -137,7 +137,7 @@ The smoothest path on Windows is **MSYS2 UCRT64**.
 7. **Run the app:**
 
    ```bash
-   ./build/AnimeTracker.exe
+   ./build/AniLog.exe
    ```
 
 ## 💻 Visual Studio Code Setup

@@ -3,10 +3,9 @@
 // -----------------------------------------------------------------------------
 //  WHAT THIS TAB DOES
 //    Reads the whole library once, tallies it up, and presents the numbers as
-//    three stacked tables, top to bottom:
+//    two stacked tables, top to bottom:
 //      1. Overall Vault Status .. totals per type/status + completion rate.
 //      2. Progress Metrics ...... episodes watched, chapters read, avg rating.
-//      3. Insights .............. "most watched" and "most read" titles.
 //    Everything is recomputed every frame from `currentLibrary`, so the page is
 //    always live - add or edit a record and the numbers update immediately.
 // =============================================================================
@@ -26,9 +25,6 @@ void RenderStatisticsTab() {
     int totalRereads = 0;
     float sumRating = 0.0f;
     int   ratedCount = 0;
-    string mostWatchedTitle = "N/A", mostReadTitle = "N/A";
-    int   mostWatchedEps = -1, mostReadChs = -1;
-
     for (int i = 0; i < (int)currentLibrary.size(); i++) {
         const MediaRecord& m = currentLibrary[i];
         
@@ -52,14 +48,6 @@ void RenderStatisticsTab() {
         sumRating += m.rating;
         ratedCount++;
         
-        if (m.type == "Anime" && totalMediaProgress > mostWatchedEps) {
-            mostWatchedEps   = totalMediaProgress;
-            mostWatchedTitle = m.title;
-        }
-        if (m.type == "Manga" && totalMediaProgress > mostReadChs) {
-            mostReadChs   = totalMediaProgress;
-            mostReadTitle = m.title;
-        }
     }
 
     float avgRating      = (ratedCount > 0) ? sumRating / ratedCount : 0.0f;

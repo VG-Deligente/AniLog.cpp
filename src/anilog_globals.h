@@ -40,7 +40,7 @@ using namespace std;
 //    are *multipliers* on the base font: 1.0f is the font's natural size, 2.0f
 //    is double. Four named levels keep the hierarchy consistent everywhere:
 //      HEADER  -> the single big title at the very top of each tab.
-//      SECTION -> sub-section headings inside a tab (e.g. "Active", "Insights").
+//      SECTION -> sub-section headings inside a tab (e.g. "Active", "Progress Metrics").
 //      BODY    -> the default reading size: table cells, form fields, paragraphs.
 //      SMALL   -> tiny inline notes only (e.g. a "3 / 5" rating counter).
 //

@@ -6,7 +6,7 @@ endif()
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-project(AnimeTracker)
+project(AniLog)
 
 # Force modern C++
 set(CMAKE_CXX_STANDARD 17)
@@ -55,10 +55,11 @@ set(SOURCES
     include/imgui/imgui_impl_opengl3.cpp
 )
 
-# Name the final app "AnimeTracker"
+# Name the final app "AniLog"
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 if(WIN32)
+    target_sources(${PROJECT_NAME} PRIVATE resources/anilog.rc)
     set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
 endif()
 
