@@ -14,37 +14,37 @@
 // =============================================================================
 //  GLOBAL DEFINITIONS - storage lives here, extern in anilog_globals.h
 // =============================================================================
-vector<UserRecord>  userDatabase;
+vector<UserRecord> userDatabase;
 vector<MediaRecord> currentLibrary;
-vector<string>      activityLogs;
+vector<string> activityLogs;
 
 string loggedInUser = "";
-string authMessage  = "";
-bool   isAuthError  = false;
+string authMessage = "";
+bool isAuthError = false;
 
-Screen       currentScreen = LOGIN;
-DashboardTab currentTab    = LIBRARY;
+Screen currentScreen = LOGIN;
+DashboardTab currentTab = LIBRARY;
 
 char inputTitle[128] = "";
-int  inputTypeIndex  = 0;
-int  inputCurrent    = 0;
-int  inputTotal      = 12;
-int  inputRating     = 3;
-int  inputStatusIndex= 0;
-int  editingIndex    = -1;
+int inputTypeIndex = 0;
+int inputCurrent = 0;
+int inputTotal = 12;
+int inputRating = 3;
+int inputStatusIndex = 0;
+int editingIndex = -1;
 
-char searchBuffer[128]  = "";
-int  currentFilterIndex = 0;
+char searchBuffer[128] = "";
+int currentFilterIndex = 0;
 
-bool         pendingNavAway = false;
-DashboardTab pendingTab     = LIBRARY;
-bool         showRewatchConfirm  = false;
-int          rewatchTargetIndex  = -1;
+bool pendingNavAway = false;
+DashboardTab pendingTab = LIBRARY;
+bool showRewatchConfirm = false;
+int rewatchTargetIndex = -1;
 
-const char* typeOptions[]        = { "Anime", "Manga" };
+const char* typeOptions[] = { "Anime", "Manga" };
 const char* animeStatusOptions[] = { "Watching", "Completed", "Dropped" };
-const char* mangaStatusOptions[] = { "Reading",  "Completed", "Dropped" };
-const char* filterOptions[]      = { "All Media", "Anime Only", "Manga Only" };
+const char* mangaStatusOptions[] = { "Reading", "Completed", "Dropped" };
+const char* filterOptions[] = { "All Media", "Anime Only", "Manga Only" };
 
 // =============================================================================
 //  BASIC STRING / DATE HELPERS
@@ -71,7 +71,7 @@ string toLowerStr(const string& s) {
 string trimStr(const string& s) {
     int start = 0, end = (int)s.size() - 1;
     while (start <= end && s[start] == ' ') start++;
-    while (end >= start && s[end]   == ' ') end--;
+    while (end >= start && s[end] == ' ') end--;
     return s.substr(start, end - start + 1);
 }
 
@@ -109,8 +109,8 @@ string buildChangeSummary(const MediaRecord& before, const MediaRecord& after) {
 // =============================================================================
 //  SORTING COMPARATORS
 // =============================================================================
-bool sortTitleAsc  (const MediaRecord& a, const MediaRecord& b) { return a.title < b.title; }
-bool sortTitleDesc (const MediaRecord& a, const MediaRecord& b) { return a.title > b.title; }
+bool sortTitleAsc(const MediaRecord& a, const MediaRecord& b) { return a.title < b.title; }
+bool sortTitleDesc(const MediaRecord& a, const MediaRecord& b) { return a.title > b.title; }
 bool sortRatingDesc(const MediaRecord& a, const MediaRecord& b) { return a.rating > b.rating; }
 bool sortProgressDesc(const MediaRecord& a, const MediaRecord& b) {
     float pctA = (a.totalProgress > 0) ? (float)a.currentProgress / a.totalProgress : 0;
@@ -156,17 +156,17 @@ void loadLibrary() {
             MediaRecord m;
             string val;
             try {
-                getline(ss, m.title,        '|');
-                getline(ss, m.type,         '|');
-                getline(ss, val,            '|'); m.currentProgress = stoi(val);
-                getline(ss, val,            '|'); m.totalProgress   = stoi(val);
-                getline(ss, val,            '|'); m.rating          = stoi(val);
-                getline(ss, m.status,       '|');
-                getline(ss, m.dateStarted,  '|');
+                getline(ss, m.title, '|');
+                getline(ss, m.type, '|');
+                getline(ss, val, '|'); m.currentProgress = stoi(val);
+                getline(ss, val, '|'); m.totalProgress = stoi(val);
+                getline(ss, val, '|'); m.rating = stoi(val);
+                getline(ss, m.status, '|');
+                getline(ss, m.dateStarted, '|');
                 getline(ss, m.dateFinished, '|');
-                getline(ss, val);                 m.rereadCount     = stoi(val);
+                getline(ss, val); m.rereadCount = stoi(val);
 
-                if (m.totalProgress   < 1) m.totalProgress   = 1;
+                if (m.totalProgress < 1) m.totalProgress = 1;
                 if (m.currentProgress < 0) m.currentProgress = 0;
                 if (m.currentProgress > m.totalProgress) m.currentProgress = m.totalProgress;
                 if (m.rating < 1) m.rating = 1;
@@ -196,15 +196,15 @@ void saveLibrary() {
     if (file.is_open()) {
         for (int i = 0; i < (int)currentLibrary.size(); i++) {
             const MediaRecord& m = currentLibrary[i];
-            file << m.title           << "|"
-                 << m.type            << "|"
+            file << m.title << "|"
+                 << m.type << "|"
                  << m.currentProgress << "|"
-                 << m.totalProgress   << "|"
-                 << m.rating          << "|"
-                 << m.status          << "|"
-                 << m.dateStarted     << "|"
-                 << m.dateFinished    << "|"
-                 << m.rereadCount     << "\n";
+                 << m.totalProgress << "|"
+                 << m.rating << "|"
+                 << m.status << "|"
+                 << m.dateStarted << "|"
+                 << m.dateFinished << "|"
+                 << m.rereadCount << "\n";
         }
         file.close();
     }
@@ -268,13 +268,13 @@ bool loginUser(const string& username, const string& password) {
 void resetForm() {
     // Return the Add/Edit form to its default "new anime" state. This is called
     // after save, cancel, logout, and when starting a fresh Add Record flow.
-    inputTitle[0]    = '\0';
-    inputTypeIndex   = 0;
-    inputCurrent     = 0;
-    inputTotal       = 12;
-    inputRating      = 3;
+    inputTitle[0] = '\0';
+    inputTypeIndex = 0;
+    inputCurrent = 0;
+    inputTotal = 12;
+    inputRating = 3;
     inputStatusIndex = 0;
-    editingIndex     = -1;
+    editingIndex = -1;
 }
 
 bool titleExists(const string& title, int excludeIndex) {

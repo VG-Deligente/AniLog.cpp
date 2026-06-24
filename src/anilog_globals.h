@@ -54,27 +54,27 @@ using namespace std;
 //    (Note: the left sidebar and the login screen set their own scale directly
 //     in main.cpp, because they are drawn in a different window.)
 // =============================================================================
-#define FONT_SCALE_HEADER  1.9f   // tab titles            (was 1.6)
-#define FONT_SCALE_SECTION 1.6f   // section sub-headings  (was 1.4)
-#define FONT_SCALE_BODY    1.45f  // default body text     (was 1.3)
-#define FONT_SCALE_SMALL   1.2f   // minor inline counters (was 1.1)
+#define FONT_SCALE_HEADER 1.9f // tab titles (was 1.6)
+#define FONT_SCALE_SECTION 1.6f // section sub-headings (was 1.4)
+#define FONT_SCALE_BODY 1.45f // default body text (was 1.3)
+#define FONT_SCALE_SMALL 1.2f // minor inline counters (was 1.1)
 
 // =============================================================================
 //  SHARED ACCENT COLORS - reused across tabs so the same kind of element
 //  (titles, success states, warnings, danger actions) always reads the same.
 // =============================================================================
-#define COLOR_ACCENT_BLUE   ImVec4(0.35f, 0.65f, 1.0f, 1.0f)
-#define COLOR_ACCENT_GREEN  ImVec4(0.4f,  1.0f,  0.6f, 1.0f)
-#define COLOR_ACCENT_ORANGE ImVec4(1.0f,  0.75f, 0.3f, 1.0f)
-#define COLOR_ACCENT_RED    ImVec4(1.0f,  0.4f,  0.4f, 1.0f)
-#define COLOR_ACCENT_PURPLE ImVec4(0.9f,  0.5f,  1.0f, 1.0f)
-#define COLOR_MUTED         ImVec4(0.55f, 0.55f, 0.55f, 1.0f)
-#define COLOR_LABEL         ImVec4(0.7f,  0.7f,  0.7f,  1.0f)
+#define COLOR_ACCENT_BLUE ImVec4(0.35f, 0.65f, 1.0f, 1.0f)
+#define COLOR_ACCENT_GREEN ImVec4(0.4f, 1.0f, 0.6f, 1.0f)
+#define COLOR_ACCENT_ORANGE ImVec4(1.0f, 0.75f, 0.3f, 1.0f)
+#define COLOR_ACCENT_RED ImVec4(1.0f, 0.4f, 0.4f, 1.0f)
+#define COLOR_ACCENT_PURPLE ImVec4(0.9f, 0.5f, 1.0f, 1.0f)
+#define COLOR_MUTED ImVec4(0.55f, 0.55f, 0.55f, 1.0f)
+#define COLOR_LABEL ImVec4(0.7f, 0.7f, 0.7f, 1.0f)
 
 // =============================================================================
 //  ENUMS
 // =============================================================================
-enum Screen       { LOGIN, SIGNUP, DASHBOARD };
+enum Screen { LOGIN, SIGNUP, DASHBOARD };
 enum DashboardTab { LIBRARY, ADD_MEDIA, EDIT_MEDIA, ACTIVITY_LOG, STATISTICS, HELP };
 
 // =============================================================================
@@ -88,13 +88,13 @@ struct UserRecord {
 struct MediaRecord {
     string title;
     string type;
-    int    currentProgress;
-    int    totalProgress;
-    int    rating;
+    int currentProgress;
+    int totalProgress;
+    int rating;
     string status;
     string dateStarted;
     string dateFinished;
-    int    rereadCount;
+    int rereadCount;
 };
 
 // =============================================================================
@@ -102,37 +102,37 @@ struct MediaRecord {
 // =============================================================================
 
 // Data collections
-extern vector<UserRecord>  userDatabase;
+extern vector<UserRecord> userDatabase;
 extern vector<MediaRecord> currentLibrary;
-extern vector<string>      activityLogs;
+extern vector<string> activityLogs;
 
 // Session state
 extern string loggedInUser;
 extern string authMessage;
-extern bool   isAuthError;
+extern bool isAuthError;
 
 // Screen / tab state
-extern Screen       currentScreen;
+extern Screen currentScreen;
 extern DashboardTab currentTab;
 
 // Add / Edit form buffers
 extern char inputTitle[128];
-extern int  inputTypeIndex;
-extern int  inputCurrent;
-extern int  inputTotal;
-extern int  inputRating;
-extern int  inputStatusIndex;
-extern int  editingIndex;
+extern int inputTypeIndex;
+extern int inputCurrent;
+extern int inputTotal;
+extern int inputRating;
+extern int inputStatusIndex;
+extern int editingIndex;
 
 // Library filter / search
 extern char searchBuffer[128];
-extern int  currentFilterIndex;
+extern int currentFilterIndex;
 
 // UI state flags
-extern bool         pendingNavAway;
+extern bool pendingNavAway;
 extern DashboardTab pendingTab;
-extern bool         showRewatchConfirm;
-extern int          rewatchTargetIndex;
+extern bool showRewatchConfirm;
+extern int rewatchTargetIndex;
 
 // String lookup tables
 extern const char* typeOptions[];
@@ -146,25 +146,25 @@ extern const char* filterOptions[3];
 string getCurrentDate();
 string toLowerStr(const string& s);
 string trimStr(const string& s);
-void   logActivity(const string& action);
+void logActivity(const string& action);
 string buildChangeSummary(const MediaRecord& before, const MediaRecord& after);
-void   saveLibrary();
-void   resetForm();
-bool   titleExists(const string& title, int excludeIndex = -1);
+void saveLibrary();
+void resetForm();
+bool titleExists(const string& title, int excludeIndex = -1);
 
 // =============================================================================
 //  SORTING COMPARATORS - defined in anilog_utils.cpp
 // =============================================================================
-bool sortTitleAsc    (const MediaRecord& a, const MediaRecord& b);
-bool sortTitleDesc   (const MediaRecord& a, const MediaRecord& b);
-bool sortRatingDesc  (const MediaRecord& a, const MediaRecord& b);
+bool sortTitleAsc(const MediaRecord& a, const MediaRecord& b);
+bool sortTitleDesc(const MediaRecord& a, const MediaRecord& b);
+bool sortRatingDesc(const MediaRecord& a, const MediaRecord& b);
 bool sortProgressDesc(const MediaRecord& a, const MediaRecord& b);
 
 // =============================================================================
 //  TAB RENDER FUNCTION DECLARATIONS - defined in their respective .cpp files
 // =============================================================================
-void RenderLibraryTab    (ImVec2 center);
-void RenderAddEditTab    (ImVec2 center);
-void RenderStatisticsTab ();
+void RenderLibraryTab(ImVec2 center);
+void RenderAddEditTab(ImVec2 center);
+void RenderStatisticsTab();
 void RenderActivityLogTab();
-void RenderHelpTab       ();
+void RenderHelpTab();

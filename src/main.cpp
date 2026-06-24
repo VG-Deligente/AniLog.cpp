@@ -97,20 +97,20 @@ int main() {
     // anilog_globals.h, while these values tune ImGui's base widgets.
     ImGui::StyleColorsDark();
     ImGuiStyle& style = ImGui::GetStyle();
-    style.WindowRounding   = 8.0f;
-    style.FrameRounding    = 6.0f;
-    style.GrabRounding     = 6.0f;
-    style.ItemSpacing      = ImVec2(8.0f, 8.0f);
-    style.FramePadding     = ImVec2(8.0f, 6.0f);
-    style.Colors[ImGuiCol_WindowBg]       = ImVec4(0.13f, 0.13f, 0.16f, 1.0f);
-    style.Colors[ImGuiCol_ChildBg]        = ImVec4(0.10f, 0.10f, 0.13f, 1.0f);
-    style.Colors[ImGuiCol_PopupBg]        = ImVec4(0.15f, 0.15f, 0.18f, 1.0f);
-    style.Colors[ImGuiCol_Button]         = ImVec4(0.18f, 0.35f, 0.58f, 1.0f);
-    style.Colors[ImGuiCol_ButtonHovered]  = ImVec4(0.24f, 0.45f, 0.75f, 1.0f);
-    style.Colors[ImGuiCol_ButtonActive]   = ImVec4(0.12f, 0.25f, 0.45f, 1.0f);
-    style.Colors[ImGuiCol_Header]         = ImVec4(0.18f, 0.35f, 0.58f, 0.8f);
-    style.Colors[ImGuiCol_HeaderHovered]  = ImVec4(0.24f, 0.45f, 0.75f, 0.8f);
-    style.Colors[ImGuiCol_FrameBg]        = ImVec4(0.20f, 0.20f, 0.25f, 1.0f);
+    style.WindowRounding = 8.0f;
+    style.FrameRounding = 6.0f;
+    style.GrabRounding = 6.0f;
+    style.ItemSpacing = ImVec2(8.0f, 8.0f);
+    style.FramePadding = ImVec2(8.0f, 6.0f);
+    style.Colors[ImGuiCol_WindowBg] = ImVec4(0.13f, 0.13f, 0.16f, 1.0f);
+    style.Colors[ImGuiCol_ChildBg] = ImVec4(0.10f, 0.10f, 0.13f, 1.0f);
+    style.Colors[ImGuiCol_PopupBg] = ImVec4(0.15f, 0.15f, 0.18f, 1.0f);
+    style.Colors[ImGuiCol_Button] = ImVec4(0.18f, 0.35f, 0.58f, 1.0f);
+    style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.24f, 0.45f, 0.75f, 1.0f);
+    style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.12f, 0.25f, 0.45f, 1.0f);
+    style.Colors[ImGuiCol_Header] = ImVec4(0.18f, 0.35f, 0.58f, 0.8f);
+    style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.24f, 0.45f, 0.75f, 0.8f);
+    style.Colors[ImGuiCol_FrameBg] = ImVec4(0.20f, 0.20f, 0.25f, 1.0f);
     style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.25f, 0.25f, 0.30f, 1.0f);
 
     // Users are loaded once on startup. A user's personal library/logs are
@@ -121,7 +121,7 @@ int main() {
     char passwordInput[64] = "";
     bool showPassword = false;
 
-    const ImVec4 COL_ACTIVE_BTN     = ImVec4(0.24f, 0.48f, 0.80f, 1.0f);
+    const ImVec4 COL_ACTIVE_BTN = ImVec4(0.24f, 0.48f, 0.80f, 1.0f);
     const ImVec4 COL_ACTIVE_HOVERED = ImVec4(0.30f, 0.55f, 0.90f, 1.0f);
 
     // =========================================================================
@@ -200,7 +200,7 @@ int main() {
                 if (ImGui::Button("Log In", ImVec2(elemW, 50))) {
                     if (loginUser(usernameInput, passwordInput)) {
                         currentScreen = DASHBOARD;
-                        currentTab    = LIBRARY;
+                        currentTab = LIBRARY;
                         resetForm();
                     }
                 }
@@ -265,7 +265,7 @@ int main() {
             auto sidebarBtn = [&](const char* label, DashboardTab tab) {
                 bool isActive = (currentTab == tab);
                 if (isActive) {
-                    ImGui::PushStyleColor(ImGuiCol_Button,        COL_ACTIVE_BTN);
+                    ImGui::PushStyleColor(ImGuiCol_Button, COL_ACTIVE_BTN);
                     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, COL_ACTIVE_HOVERED);
                 }
                 if (ImGui::Button(label, ImVec2(230, 45))) {
@@ -273,7 +273,7 @@ int main() {
                                     && string(inputTitle) != "";
                     if (formHasData && tab != currentTab) {
                         pendingNavAway = true;
-                        pendingTab     = tab;
+                        pendingTab = tab;
                         ImGui::OpenPopup("Unsaved Changes");
                     } else {
                         if (tab == ADD_MEDIA) resetForm();
@@ -284,11 +284,11 @@ int main() {
                 ImGui::Spacing();
             };
 
-            sidebarBtn("AniDex",       LIBRARY);
-            sidebarBtn("Add Record",   ADD_MEDIA);
-            sidebarBtn("Statistics",   STATISTICS);
+            sidebarBtn("AniDex", LIBRARY);
+            sidebarBtn("Add Record", ADD_MEDIA);
+            sidebarBtn("Statistics", STATISTICS);
             sidebarBtn("Activity Log", ACTIVITY_LOG);
-            sidebarBtn("Help",         HELP);
+            sidebarBtn("Help", HELP);
 
             ImVec2 center = ImGui::GetMainViewport()->GetCenter();
 
@@ -300,11 +300,11 @@ int main() {
                 ImGui::Text("You have unsaved changes.");
                 ImGui::Text("Leave anyway and discard them?");
                 ImGui::Spacing(); ImGui::Separator(); ImGui::Spacing();
-                ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.65f, 0.2f, 0.2f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.65f, 0.2f, 0.2f, 1.0f));
                 ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.85f, 0.3f, 0.3f, 1.0f));
                 if (ImGui::Button("Yes, Discard", ImVec2(130, 35))) {
                     resetForm();
-                    currentTab     = pendingTab;
+                    currentTab = pendingTab;
                     pendingNavAway = false;
                     ImGui::CloseCurrentPopup();
                 }
@@ -320,7 +320,7 @@ int main() {
             // Logout button
             ImGui::SetCursorPosY(io.DisplaySize.y - 70);
             ImGui::Separator(); ImGui::Spacing();
-            ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.8f, 0.3f, 0.3f, 1.0f));
             if (ImGui::Button("Logout", ImVec2(230, 40)))
                 ImGui::OpenPopup("Logout Confirmation");
@@ -333,12 +333,12 @@ int main() {
             if (ImGui::BeginPopupModal("Logout Confirmation", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
                 ImGui::Text("Are you sure you want to logout?");
                 ImGui::Spacing(); ImGui::Separator(); ImGui::Spacing();
-                ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
                 ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.8f, 0.3f, 0.3f, 1.0f));
                 if (ImGui::Button("Yes, Logout", ImVec2(120, 35))) {
                     logActivity("User Logout: " + loggedInUser + " signed out.");
                     currentScreen = LOGIN;
-                    loggedInUser  = "";
+                    loggedInUser = "";
                     currentLibrary.clear();
                     activityLogs.clear();
                     usernameInput[0] = '\0';
@@ -367,12 +367,16 @@ int main() {
             ImGui::SetWindowFontScale(FONT_SCALE_BODY);
 
             // -- Delegate to tab files --
-            if      (currentTab == LIBRARY)                  RenderLibraryTab(center);
-            else if (currentTab == ADD_MEDIA ||
-                     currentTab == EDIT_MEDIA)               RenderAddEditTab(center);
-            else if (currentTab == STATISTICS)               RenderStatisticsTab();
-            else if (currentTab == ACTIVITY_LOG)             RenderActivityLogTab();
-            else if (currentTab == HELP)                     RenderHelpTab();
+            if (currentTab == LIBRARY)
+                RenderLibraryTab(center);
+            else if (currentTab == ADD_MEDIA || currentTab == EDIT_MEDIA)
+                RenderAddEditTab(center);
+            else if (currentTab == STATISTICS)
+                RenderStatisticsTab();
+            else if (currentTab == ACTIVITY_LOG)
+                RenderActivityLogTab();
+            else if (currentTab == HELP)
+                RenderHelpTab();
 
             ImGui::End(); // End content area
         }

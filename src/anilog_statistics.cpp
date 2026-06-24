@@ -26,7 +26,7 @@ void RenderStatisticsTab() {
     int completedCnt = 0, droppedCnt = 0, watchingCnt = 0, readingCnt = 0;
     int totalRereads = 0;
     float sumRating = 0.0f;
-    int   ratedCount = 0;
+    int ratedCount = 0;
     for (int i = 0; i < (int)currentLibrary.size(); i++) {
         const MediaRecord& m = currentLibrary[i];
         
@@ -43,9 +43,9 @@ void RenderStatisticsTab() {
         }
 
         if (m.status == "Completed") completedCnt++;
-        if (m.status == "Dropped")   droppedCnt++;
-        if (m.status == "Watching")  watchingCnt++;
-        if (m.status == "Reading")   readingCnt++;
+        if (m.status == "Dropped") droppedCnt++;
+        if (m.status == "Watching") watchingCnt++;
+        if (m.status == "Reading") readingCnt++;
         
         totalRereads += m.rereadCount;
         sumRating += m.rating;
@@ -53,13 +53,13 @@ void RenderStatisticsTab() {
         
     }
 
-    float avgRating      = (ratedCount > 0) ? sumRating / ratedCount : 0.0f;
+    float avgRating = (ratedCount > 0) ? sumRating / ratedCount : 0.0f;
     float completionRate = (currentLibrary.size() > 0)
         ? (completedCnt * 100.0f / currentLibrary.size()) : 0.0f;
 
     ImGuiTableFlags statFlags = ImGuiTableFlags_Borders
-                              | ImGuiTableFlags_RowBg
-                              | ImGuiTableFlags_SizingStretchProp;
+        | ImGuiTableFlags_RowBg
+        | ImGuiTableFlags_SizingStretchProp;
 
     // -- SECTION 1: Overall Vault Status --
     // This is the high-level library breakdown: type counts, status counts,
@@ -71,7 +71,7 @@ void RenderStatisticsTab() {
 
     if (ImGui::BeginTable("StatsVault", 2, statFlags)) {
         ImGui::TableSetupColumn("Statistic", ImGuiTableColumnFlags_WidthStretch, 2.0f);
-        ImGui::TableSetupColumn("Value",     ImGuiTableColumnFlags_WidthStretch, 1.0f);
+        ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthStretch, 1.0f);
         ImGui::TableHeadersRow();
 
         // Local helper keeps every stats row formatted the same way.
@@ -82,13 +82,13 @@ void RenderStatisticsTab() {
         };
 
         char buf[64];
-        snprintf(buf, sizeof(buf), "%d", totalAnime);         statRow("Total Anime Tracked",  buf);
-        snprintf(buf, sizeof(buf), "%d", totalManga);         statRow("Total Manga Tracked",  buf);
-        snprintf(buf, sizeof(buf), "%d", completedCnt);       statRow("Completed Titles",     buf);
-        snprintf(buf, sizeof(buf), "%d", droppedCnt);         statRow("Dropped Titles",       buf);
-        snprintf(buf, sizeof(buf), "%d", watchingCnt);        statRow("Currently Watching",   buf);
-        snprintf(buf, sizeof(buf), "%d", readingCnt);         statRow("Currently Reading",    buf);
-        snprintf(buf, sizeof(buf), "%.1f%%", completionRate); statRow("Completion Rate",      buf);
+        snprintf(buf, sizeof(buf), "%d", totalAnime); statRow("Total Anime Tracked", buf);
+        snprintf(buf, sizeof(buf), "%d", totalManga); statRow("Total Manga Tracked", buf);
+        snprintf(buf, sizeof(buf), "%d", completedCnt); statRow("Completed Titles", buf);
+        snprintf(buf, sizeof(buf), "%d", droppedCnt); statRow("Dropped Titles", buf);
+        snprintf(buf, sizeof(buf), "%d", watchingCnt); statRow("Currently Watching", buf);
+        snprintf(buf, sizeof(buf), "%d", readingCnt); statRow("Currently Reading", buf);
+        snprintf(buf, sizeof(buf), "%.1f%%", completionRate); statRow("Completion Rate", buf);
         ImGui::EndTable();
     }
 
@@ -104,7 +104,7 @@ void RenderStatisticsTab() {
 
     if (ImGui::BeginTable("StatsProgress", 2, statFlags)) {
         ImGui::TableSetupColumn("Metric", ImGuiTableColumnFlags_WidthStretch, 2.0f);
-        ImGui::TableSetupColumn("Value",  ImGuiTableColumnFlags_WidthStretch, 1.0f);
+        ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthStretch, 1.0f);
         ImGui::TableHeadersRow();
 
         // Same row helper repeated here so each table remains self-contained.
@@ -115,10 +115,10 @@ void RenderStatisticsTab() {
         };
 
         char buf[64];
-        snprintf(buf, sizeof(buf), "%d", epsWatched);         statRow("Total Episodes Watched",    buf);
-        snprintf(buf, sizeof(buf), "%d", chsRead);            statRow("Total Chapters Read",       buf);
-        snprintf(buf, sizeof(buf), "%d", totalRereads);       statRow("Total Rewatches / Rereads", buf);
-        snprintf(buf, sizeof(buf), "%.2f / 5.00", avgRating); statRow("Average Rating",            buf);
+        snprintf(buf, sizeof(buf), "%d", epsWatched); statRow("Total Episodes Watched", buf);
+        snprintf(buf, sizeof(buf), "%d", chsRead); statRow("Total Chapters Read", buf);
+        snprintf(buf, sizeof(buf), "%d", totalRereads); statRow("Total Rewatches / Rereads", buf);
+        snprintf(buf, sizeof(buf), "%.2f / 5.00", avgRating); statRow("Average Rating", buf);
         ImGui::EndTable();
     }
 

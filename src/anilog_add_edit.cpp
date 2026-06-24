@@ -41,7 +41,7 @@ void RenderAddEditTab(ImVec2 center) {
     // absolute window edge and made it sit further left than every other tab -
     // reading it from the cursor instead keeps the alignment consistent.
     // Increase `offsetX` to indent the form more; change `formW` to resize it.
-    float formW   = 520.0f;
+    float formW = 520.0f;
     float offsetX = ImGui::GetCursorPosX();
 
     // -- Section title --
@@ -59,9 +59,9 @@ void RenderAddEditTab(ImVec2 center) {
     // Keep validation close to the form so the disabled Save state and the
     // visible error message always use the same rules.
     string validationMsg = "";
-    string titleStr  = trimStr(string(inputTitle));
-    bool   titleBlank= titleStr.empty();
-    bool   titleDupe = !titleBlank && titleExists(titleStr, editingIndex);
+    string titleStr = trimStr(string(inputTitle));
+    bool titleBlank = titleStr.empty();
+    bool titleDupe = !titleBlank && titleExists(titleStr, editingIndex);
     if (titleBlank && string(inputTitle) != "")
         validationMsg = "Title cannot be only spaces.";
     else if (titleDupe)
@@ -106,8 +106,8 @@ void RenderAddEditTab(ImVec2 center) {
     ImGui::SetNextItemWidth(halfW);
     ImGui::InputInt("##total", &inputTotal);
 
-    if (inputCurrent < 0)          inputCurrent = 0;
-    if (inputTotal   < 1)          inputTotal   = 1;
+    if (inputCurrent < 0) inputCurrent = 0;
+    if (inputTotal < 1) inputTotal = 1;
     if (inputCurrent > inputTotal) inputCurrent = inputTotal;
 
     if (inputCurrent == inputTotal && inputTotal > 0) {
@@ -154,14 +154,14 @@ void RenderAddEditTab(ImVec2 center) {
     // -- Save / Cancel buttons --
     // The button is visually disabled when validation fails. The canSave check
     // is also kept in the click condition so invalid records cannot be written.
-    bool  canSave = !titleBlank && !titleDupe;
-    float btnW    = (formW - 12.0f) * 0.5f;
+    bool canSave = !titleBlank && !titleDupe;
+    float btnW = (formW - 12.0f) * 0.5f;
 
     ImGui::SetCursorPosX(offsetX);
     if (!canSave) {
-        ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.3f, 0.3f, 0.3f, 1.0f));
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.3f, 0.3f, 0.3f, 1.0f));
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.3f, 0.3f, 1.0f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive,  ImVec4(0.3f, 0.3f, 0.3f, 1.0f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.3f, 0.3f, 0.3f, 1.0f));
     }
 
     if (ImGui::Button(isEdit ? "Save Changes" : "Save Record", ImVec2(btnW, 48)) && canSave) {
@@ -169,16 +169,16 @@ void RenderAddEditTab(ImVec2 center) {
             // Add mode builds a new MediaRecord from the shared form buffers.
             // If progress is already complete, the record starts in Completed.
             MediaRecord newMedia;
-            newMedia.title           = titleStr;
-            newMedia.type            = typeOptions[inputTypeIndex];
+            newMedia.title = titleStr;
+            newMedia.type = typeOptions[inputTypeIndex];
             newMedia.currentProgress = inputCurrent;
-            newMedia.totalProgress   = inputTotal;
-            newMedia.rating          = inputRating;
-            newMedia.status          = currentStatusOptions[inputStatusIndex];
-            newMedia.dateStarted     = getCurrentDate();
-            newMedia.rereadCount     = 0;
+            newMedia.totalProgress = inputTotal;
+            newMedia.rating = inputRating;
+            newMedia.status = currentStatusOptions[inputStatusIndex];
+            newMedia.dateStarted = getCurrentDate();
+            newMedia.rereadCount = 0;
             if (inputCurrent == inputTotal) {
-                newMedia.status       = "Completed";
+                newMedia.status = "Completed";
                 newMedia.dateFinished = getCurrentDate();
             } else {
                 newMedia.dateFinished = "";
@@ -192,12 +192,12 @@ void RenderAddEditTab(ImVec2 center) {
                 // Edit mode updates the existing row in place. The "before"
                 // copy is only used to produce a useful Activity Log summary.
                 MediaRecord before = currentLibrary[editingIndex];
-                currentLibrary[editingIndex].title           = titleStr;
-                currentLibrary[editingIndex].type            = typeOptions[inputTypeIndex];
+                currentLibrary[editingIndex].title = titleStr;
+                currentLibrary[editingIndex].type = typeOptions[inputTypeIndex];
                 currentLibrary[editingIndex].currentProgress = inputCurrent;
-                currentLibrary[editingIndex].totalProgress   = inputTotal;
-                currentLibrary[editingIndex].rating          = inputRating;
-                currentLibrary[editingIndex].status          = currentStatusOptions[inputStatusIndex];
+                currentLibrary[editingIndex].totalProgress = inputTotal;
+                currentLibrary[editingIndex].rating = inputRating;
+                currentLibrary[editingIndex].status = currentStatusOptions[inputStatusIndex];
                 if (inputCurrent == inputTotal) {
                     currentLibrary[editingIndex].status = "Completed";
                     if (currentLibrary[editingIndex].dateFinished.empty())
@@ -217,7 +217,7 @@ void RenderAddEditTab(ImVec2 center) {
     if (!canSave) ImGui::PopStyleColor(3);
 
     ImGui::SameLine(0, 12);
-    ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.35f, 0.20f, 0.20f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.35f, 0.20f, 0.20f, 1.0f));
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.55f, 0.25f, 0.25f, 1.0f));
     if (ImGui::Button("Cancel", ImVec2(btnW, 48))) {
         currentTab = LIBRARY;

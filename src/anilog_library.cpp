@@ -28,19 +28,19 @@ void RenderLibraryTab(ImVec2 center) {
     ImGui::SameLine();
     ImGui::Text("  Sort:");
     ImGui::SameLine();
-    if (ImGui::Button("A-Z"))      std::sort(currentLibrary.begin(), currentLibrary.end(), sortTitleAsc);
+    if (ImGui::Button("A-Z")) std::sort(currentLibrary.begin(), currentLibrary.end(), sortTitleAsc);
     ImGui::SameLine();
-    if (ImGui::Button("Z-A"))      std::sort(currentLibrary.begin(), currentLibrary.end(), sortTitleDesc);
+    if (ImGui::Button("Z-A")) std::sort(currentLibrary.begin(), currentLibrary.end(), sortTitleDesc);
     ImGui::SameLine();
-    if (ImGui::Button("Rating"))   std::sort(currentLibrary.begin(), currentLibrary.end(), sortRatingDesc);
+    if (ImGui::Button("Rating")) std::sort(currentLibrary.begin(), currentLibrary.end(), sortRatingDesc);
     ImGui::SameLine();
     if (ImGui::Button("Progress")) std::sort(currentLibrary.begin(), currentLibrary.end(), sortProgressDesc);
 
     ImGui::Spacing();
 
     ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders
-                               | ImGuiTableFlags_RowBg
-                               | ImGuiTableFlags_SizingStretchProp;
+        | ImGuiTableFlags_RowBg
+        | ImGuiTableFlags_SizingStretchProp;
 
     // Shared row predicate for all three tables. A blank status means "match
     // any non-final active status"; explicit statuses are used by Completed
@@ -72,12 +72,12 @@ void RenderLibraryTab(ImVec2 center) {
         ImGui::TextColored(ImVec4(0.55f, 0.55f, 0.55f, 1.0f), "No active records. Add one with 'Add Record'!");
         ImGui::Spacing();
     } else if (ImGui::BeginTable("LibraryTable", 6, tableFlags)) {
-        ImGui::TableSetupColumn("Title",    ImGuiTableColumnFlags_WidthStretch, 2.5f);
-        ImGui::TableSetupColumn("Type",     ImGuiTableColumnFlags_WidthStretch, 1.0f);
+        ImGui::TableSetupColumn("Title", ImGuiTableColumnFlags_WidthStretch, 2.5f);
+        ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthStretch, 1.0f);
         ImGui::TableSetupColumn("Progress", ImGuiTableColumnFlags_WidthStretch, 1.2f);
-        ImGui::TableSetupColumn("Status",   ImGuiTableColumnFlags_WidthStretch, 1.5f);
-        ImGui::TableSetupColumn("Rating",   ImGuiTableColumnFlags_WidthStretch, 0.8f);
-        ImGui::TableSetupColumn("Actions",  ImGuiTableColumnFlags_WidthStretch, 2.5f);
+        ImGui::TableSetupColumn("Status", ImGuiTableColumnFlags_WidthStretch, 1.5f);
+        ImGui::TableSetupColumn("Rating", ImGuiTableColumnFlags_WidthStretch, 0.8f);
+        ImGui::TableSetupColumn("Actions", ImGuiTableColumnFlags_WidthStretch, 2.5f);
         ImGui::TableHeadersRow();
 
         // Deletion is deferred until after the table loop. Erasing from
@@ -109,7 +109,7 @@ void RenderLibraryTab(ImVec2 center) {
                               + to_string(currentLibrary[i].currentProgress)
                               + " of " + to_string(currentLibrary[i].totalProgress));
                     if (currentLibrary[i].currentProgress == currentLibrary[i].totalProgress) {
-                        currentLibrary[i].status       = "Completed";
+                        currentLibrary[i].status = "Completed";
                         currentLibrary[i].dateFinished = getCurrentDate();
                         logActivity("Status Changed: [" + currentLibrary[i].title + "] marked as Completed.");
                     }
@@ -121,22 +121,22 @@ void RenderLibraryTab(ImVec2 center) {
             // Copy the selected row into the shared Add/Edit buffers, then let
             // RenderAddEditTab handle the actual editing screen.
             if (ImGui::Button("Edit")) {
-                editingIndex   = i;
+                editingIndex = i;
                 snprintf(inputTitle, sizeof(inputTitle), "%s", currentLibrary[i].title.c_str());
                 inputTypeIndex = (currentLibrary[i].type == "Anime") ? 0 : 1;
-                inputCurrent   = currentLibrary[i].currentProgress;
-                inputTotal     = currentLibrary[i].totalProgress;
-                inputRating    = currentLibrary[i].rating;
-                if      (currentLibrary[i].status == "Completed") inputStatusIndex = 1;
-                else if (currentLibrary[i].status == "Dropped")   inputStatusIndex = 2;
-                else                                               inputStatusIndex = 0;
+                inputCurrent = currentLibrary[i].currentProgress;
+                inputTotal = currentLibrary[i].totalProgress;
+                inputRating = currentLibrary[i].rating;
+                if (currentLibrary[i].status == "Completed") inputStatusIndex = 1;
+                else if (currentLibrary[i].status == "Dropped") inputStatusIndex = 2;
+                else inputStatusIndex = 0;
                 currentTab = EDIT_MEDIA;
             }
             ImGui::SameLine();
 
             // Destructive actions use a per-row popup id so multiple rows can
             // safely render their own confirmation dialog in the same table.
-            ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.7f, 0.2f, 0.2f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.2f, 0.2f, 1.0f));
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.3f, 0.3f, 1.0f));
             string delPopupId = "DelConf_Active_" + to_string(i);
             if (ImGui::Button("Delete"))
@@ -148,7 +148,7 @@ void RenderLibraryTab(ImVec2 center) {
                 ImGui::Text("Delete \"%s\"?", currentLibrary[i].title.c_str());
                 ImGui::Text("This action cannot be undone.");
                 ImGui::Spacing(); ImGui::Separator(); ImGui::Spacing();
-                ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.7f, 0.2f, 0.2f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.2f, 0.2f, 1.0f));
                 ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.3f, 0.3f, 1.0f));
                 if (ImGui::Button("Yes, Delete", ImVec2(120, 35))) { deleteTarget = i; ImGui::CloseCurrentPopup(); }
                 ImGui::PopStyleColor(2);
@@ -187,12 +187,12 @@ void RenderLibraryTab(ImVec2 center) {
         ImGui::TextColored(ImVec4(0.55f, 0.55f, 0.55f, 1.0f), "No completed titles yet. Keep watching!");
         ImGui::Spacing();
     } else if (ImGui::BeginTable("CompletedTable", 6, tableFlags)) {
-        ImGui::TableSetupColumn("Title",         ImGuiTableColumnFlags_WidthStretch, 2.5f);
-        ImGui::TableSetupColumn("Type",          ImGuiTableColumnFlags_WidthStretch, 1.0f);
+        ImGui::TableSetupColumn("Title", ImGuiTableColumnFlags_WidthStretch, 2.5f);
+        ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthStretch, 1.0f);
         ImGui::TableSetupColumn("Date Finished", ImGuiTableColumnFlags_WidthStretch, 1.5f);
-        ImGui::TableSetupColumn("Rating",        ImGuiTableColumnFlags_WidthStretch, 0.8f);
-        ImGui::TableSetupColumn("Rewatched/Reread",     ImGuiTableColumnFlags_WidthStretch, 1.0f);
-        ImGui::TableSetupColumn("Actions",       ImGuiTableColumnFlags_WidthStretch, 2.5f);
+        ImGui::TableSetupColumn("Rating", ImGuiTableColumnFlags_WidthStretch, 0.8f);
+        ImGui::TableSetupColumn("Rewatched/Reread", ImGuiTableColumnFlags_WidthStretch, 1.0f);
+        ImGui::TableSetupColumn("Actions", ImGuiTableColumnFlags_WidthStretch, 2.5f);
         ImGui::TableHeadersRow();
 
         // Same deferred-delete pattern as the Active table.
@@ -213,7 +213,7 @@ void RenderLibraryTab(ImVec2 center) {
             // Restart keeps the record but resets progress, clears the finish
             // date, and increments the lifetime rewatch/reread counter.
             string rBtnLabel = (currentLibrary[i].type == "Anime") ? "Rewatch" : "Reread";
-            string rPopupId  = "RewatchConf_" + to_string(i);
+            string rPopupId = "RewatchConf_" + to_string(i);
             if (ImGui::Button(rBtnLabel.c_str(), ImVec2(110, 0)))
                 ImGui::OpenPopup(rPopupId.c_str());
 
@@ -241,18 +241,18 @@ void RenderLibraryTab(ImVec2 center) {
             ImGui::SameLine();
             // Completed rows always preload the status picker to Completed.
             if (ImGui::Button("Edit")) {
-                editingIndex     = i;
+                editingIndex = i;
                 snprintf(inputTitle, sizeof(inputTitle), "%s", currentLibrary[i].title.c_str());
-                inputTypeIndex   = (currentLibrary[i].type == "Anime") ? 0 : 1;
-                inputCurrent     = currentLibrary[i].currentProgress;
-                inputTotal       = currentLibrary[i].totalProgress;
-                inputRating      = currentLibrary[i].rating;
+                inputTypeIndex = (currentLibrary[i].type == "Anime") ? 0 : 1;
+                inputCurrent = currentLibrary[i].currentProgress;
+                inputTotal = currentLibrary[i].totalProgress;
+                inputRating = currentLibrary[i].rating;
                 inputStatusIndex = 1;
                 currentTab = EDIT_MEDIA;
             }
 
             ImGui::SameLine();
-            ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.7f, 0.2f, 0.2f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.2f, 0.2f, 1.0f));
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.3f, 0.3f, 1.0f));
             string cDelPopupId = "DelConf_Completed_" + to_string(i);
             if (ImGui::Button("Delete")) ImGui::OpenPopup(cDelPopupId.c_str());
@@ -263,7 +263,7 @@ void RenderLibraryTab(ImVec2 center) {
                 ImGui::Text("Delete \"%s\"?", currentLibrary[i].title.c_str());
                 ImGui::Text("This action cannot be undone.");
                 ImGui::Spacing(); ImGui::Separator(); ImGui::Spacing();
-                ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.7f, 0.2f, 0.2f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.2f, 0.2f, 1.0f));
                 ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.3f, 0.3f, 1.0f));
                 if (ImGui::Button("Yes, Delete", ImVec2(120, 35))) { completedDelete_target = i; ImGui::CloseCurrentPopup(); }
                 ImGui::PopStyleColor(2);
@@ -302,12 +302,12 @@ void RenderLibraryTab(ImVec2 center) {
         ImGui::TextColored(ImVec4(0.55f, 0.55f, 0.55f, 1.0f), "Nothing dropped. Good discipline!");
         ImGui::Spacing();
     } else if (ImGui::BeginTable("DroppedTable", 6, tableFlags)) {
-        ImGui::TableSetupColumn("Title",    ImGuiTableColumnFlags_WidthStretch, 2.5f);
-        ImGui::TableSetupColumn("Type",     ImGuiTableColumnFlags_WidthStretch, 1.0f);
+        ImGui::TableSetupColumn("Title", ImGuiTableColumnFlags_WidthStretch, 2.5f);
+        ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthStretch, 1.0f);
         ImGui::TableSetupColumn("Progress", ImGuiTableColumnFlags_WidthStretch, 1.2f);
-        ImGui::TableSetupColumn("Rating",   ImGuiTableColumnFlags_WidthStretch, 0.8f);
-        ImGui::TableSetupColumn("Started",  ImGuiTableColumnFlags_WidthStretch, 1.5f);
-        ImGui::TableSetupColumn("Actions",  ImGuiTableColumnFlags_WidthStretch, 2.5f);
+        ImGui::TableSetupColumn("Rating", ImGuiTableColumnFlags_WidthStretch, 0.8f);
+        ImGui::TableSetupColumn("Started", ImGuiTableColumnFlags_WidthStretch, 1.5f);
+        ImGui::TableSetupColumn("Actions", ImGuiTableColumnFlags_WidthStretch, 2.5f);
         ImGui::TableHeadersRow();
 
         // Same deferred-delete pattern as the other tables.
@@ -334,18 +334,18 @@ void RenderLibraryTab(ImVec2 center) {
             ImGui::SameLine();
 
             if (ImGui::Button("Edit")) {
-                editingIndex     = i;
+                editingIndex = i;
                 snprintf(inputTitle, sizeof(inputTitle), "%s", currentLibrary[i].title.c_str());
-                inputTypeIndex   = (currentLibrary[i].type == "Anime") ? 0 : 1;
-                inputCurrent     = currentLibrary[i].currentProgress;
-                inputTotal       = currentLibrary[i].totalProgress;
-                inputRating      = currentLibrary[i].rating;
+                inputTypeIndex = (currentLibrary[i].type == "Anime") ? 0 : 1;
+                inputCurrent = currentLibrary[i].currentProgress;
+                inputTotal = currentLibrary[i].totalProgress;
+                inputRating = currentLibrary[i].rating;
                 inputStatusIndex = 2;
                 currentTab = EDIT_MEDIA;
             }
             ImGui::SameLine();
 
-            ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.7f, 0.2f, 0.2f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.2f, 0.2f, 1.0f));
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.3f, 0.3f, 1.0f));
             string dDelPopupId = "DelConf_Dropped_" + to_string(i);
             if (ImGui::Button("Delete")) ImGui::OpenPopup(dDelPopupId.c_str());
@@ -356,7 +356,7 @@ void RenderLibraryTab(ImVec2 center) {
                 ImGui::Text("Delete \"%s\"?", currentLibrary[i].title.c_str());
                 ImGui::Text("This action cannot be undone.");
                 ImGui::Spacing(); ImGui::Separator(); ImGui::Spacing();
-                ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.7f, 0.2f, 0.2f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.2f, 0.2f, 1.0f));
                 ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.3f, 0.3f, 1.0f));
                 if (ImGui::Button("Yes, Delete", ImVec2(120, 35))) { droppedDelete_target = i; ImGui::CloseCurrentPopup(); }
                 ImGui::PopStyleColor(2);
