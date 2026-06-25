@@ -19,25 +19,18 @@
 //    anilog_activity_log.cpp - TAB 4: Activity log
 //    anilog_help.cpp       - TAB 5: Help guide
 //
-//  WHERE THE TEXT SIZES COME FROM
-//    The five content tabs all size their text from the FONT_SCALE_* values in
-//    anilog_globals.h, so changing those changes the whole content area at once.
-//    This file (main.cpp) draws two things that live in their OWN windows and
-//    therefore set their own scale directly: the left SIDEBAR and the LOGIN /
-//    SIGNUP screen. Search this file for SetWindowFontScale to find and adjust
-//    them. Keeping them a touch larger than 1.0 matches the enlarged tab text.
 // =============================================================================
 
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-#include <GLFW/glfw3.h>
+#include "imgui.h" // ImGui library
+#include "imgui_impl_glfw.h" // Lets Imgui listen to mouse and keyboard through GLFW
+#include "imgui_impl_opengl3.h" //Lets Imgui draw the UI through OpenGL
+#include <GLFW/glfw3.h> // GLFW creates the window
 #if defined(_WIN32)
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 #include <windows.h>
 #endif
-#include "anilog_globals.h"
+#include "anilog_globals.h" // All the .cpp can talk to each other
 
 // Auth helpers defined in anilog_utils.cpp but not in anilog_globals.h
 // (only needed by main.cpp)
@@ -79,7 +72,7 @@ static void setWindowsAppIcon(GLFWwindow* window) {
 int main() {
     // -- Window and graphics setup --
     // GLFW owns the native window and OpenGL context; ImGui is initialized
-    // afterward so it can render into that context every frame.
+    // afterward so it can render into that context every frame
     if (!glfwInit()) return 1;
     GLFWwindow* window = glfwCreateWindow(1280, 720, "AniLog - Media Tracker", NULL, NULL);
     if (!window) { glfwTerminate(); return 1; }
@@ -93,8 +86,7 @@ int main() {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
 
-    // Global ImGui theme. Shared colors used across tabs live in
-    // anilog_globals.h, while these values tune ImGui's base widgets.
+    // Global ImGui theme. Shared colors used across tabs live in.
     ImGui::StyleColorsDark();
     ImGuiStyle& style = ImGui::GetStyle();
     style.WindowRounding = 8.0f;
@@ -125,16 +117,16 @@ int main() {
     const ImVec4 COL_ACTIVE_HOVERED = ImVec4(0.30f, 0.55f, 0.90f, 1.0f);
 
     // =========================================================================
-    //  MAIN RENDER LOOP
+    //  MAIN RENDER LOOP (reason why its clickable app)
     // =========================================================================
     while (!glfwWindowShouldClose(window)) {
-        glfwPollEvents();
+        glfwPollEvents(); // Poll OS events (keyboard, mouse, window resize, etc.)
 
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
+        ImGui_ImplOpenGL3_NewFrame(); // Clear the screen and ready the GPU to paint
+        ImGui_ImplGlfw_NewFrame(); // Tells what the user did
         ImGui::NewFrame();
 
-        ImGuiIO& io = ImGui::GetIO();
+        ImGuiIO& io = ImGui::GetIO(); // Get the ImGui input/output structure (what the user did in the frame).
 
         // =====================================================================
         //  LOGIN / SIGNUP SCREEN

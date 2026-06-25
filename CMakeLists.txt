@@ -58,6 +58,7 @@ set(SOURCES
 # Name the final app "AniLog"
 add_executable(${PROJECT_NAME} ${SOURCES})
 
+# related to the icon
 if(WIN32)
     target_sources(${PROJECT_NAME} PRIVATE resources/anilog.rc)
     set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)

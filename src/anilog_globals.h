@@ -1,6 +1,6 @@
 #pragma once
 // =============================================================================
-//  anilog_globals.h  -  THE SHARED CONTRACT FOR THE WHOLE APP
+//  anilog_globals.h
 // -----------------------------------------------------------------------------
 //  WHAT THIS FILE IS
 //    This is the single header every other source file includes. It is the
@@ -54,10 +54,10 @@ using namespace std;
 //    (Note: the left sidebar and the login screen set their own scale directly
 //     in main.cpp, because they are drawn in a different window.)
 // =============================================================================
-#define FONT_SCALE_HEADER 1.9f // tab titles (was 1.6)
-#define FONT_SCALE_SECTION 1.6f // section sub-headings (was 1.4)
-#define FONT_SCALE_BODY 1.45f // default body text (was 1.3)
-#define FONT_SCALE_SMALL 1.2f // minor inline counters (was 1.1)
+#define FONT_SCALE_HEADER 1.9f // tab titles
+#define FONT_SCALE_SECTION 1.6f // section sub-headings
+#define FONT_SCALE_BODY 1.45f // default body text
+#define FONT_SCALE_SMALL 1.2f // minor inline counters
 
 // =============================================================================
 //  SHARED ACCENT COLORS - reused across tabs so the same kind of element
@@ -102,55 +102,55 @@ struct MediaRecord {
 // =============================================================================
 
 // Data collections
-extern vector<UserRecord> userDatabase;
-extern vector<MediaRecord> currentLibrary;
-extern vector<string> activityLogs;
+extern vector<UserRecord> userDatabase; // list of user accounts
+extern vector<MediaRecord> currentLibrary; // list of all media for the logged-in user
+extern vector<string> activityLogs; //activity log entries for the logged-in user
 
 // Session state
-extern string loggedInUser;
-extern string authMessage;
-extern bool isAuthError;
+extern string loggedInUser; // If the user is logged in
+extern string authMessage; // If the user is not logged in, this contains the error message to display on the login screen.
+extern bool isAuthError; // it is used to color message red for error and green for success
 
 // Screen / tab state
-extern Screen currentScreen;
-extern DashboardTab currentTab;
+extern Screen currentScreen; // Tells if the screen is LOGIN, SIGNUP, OR DASHBOARD.
+extern DashboardTab currentTab; // Tells which tab is currently active in the dashboard.
 
-// Add / Edit form buffers
+// Add / Edit form buffers (temporary storage)
 extern char inputTitle[128];
-extern int inputTypeIndex;
-extern int inputCurrent;
-extern int inputTotal;
-extern int inputRating;
-extern int inputStatusIndex;
-extern int editingIndex;
+extern int inputTypeIndex; // anime or manga
+extern int inputCurrent; // current episode or chapter
+extern int inputTotal; // total episode or chapter
+extern int inputRating; // 0-5 stars
+extern int inputStatusIndex; // watching, completed, on-hold, dropped, plan to watch
+extern int editingIndex; // tells which entry in library you're editing
 
 // Library filter / search
-extern char searchBuffer[128];
-extern int currentFilterIndex;
+extern char searchBuffer[128]; // what you type in search box
+extern int currentFilterIndex; // index of the currently selected filter
 
-// UI state flags
-extern bool pendingNavAway;
-extern DashboardTab pendingTab;
-extern bool showRewatchConfirm;
-extern int rewatchTargetIndex;
+// UI state flags (It help shows confirmation popups)
+extern bool pendingNavAway; // for discard confirmation when switching tabs with unsaved changes
+extern DashboardTab pendingTab; // the tab you're navigating to
+extern bool showRewatchConfirm; // whether to show the rewatch confirmation dialog
+extern int rewatchTargetIndex; // the index of the record being rewatched
 
 // String lookup tables
-extern const char* typeOptions[];
-extern const char* animeStatusOptions[];
-extern const char* mangaStatusOptions[];
-extern const char* filterOptions[3];
+extern const char* typeOptions[]; // "Anime" or "Manga"
+extern const char* animeStatusOptions[]; // "Watching", "Completed", "On-Hold", "Dropped", "Plan to Watch"
+extern const char* mangaStatusOptions[]; // "Reading", "Completed", "On-Hold", "Dropped", "Plan to Read"
+extern const char* filterOptions[3]; // "All", "Watching/Reading", "Completed"
 
 // =============================================================================
 //  UTILITY FUNCTION DECLARATIONS - defined in anilog_utils.cpp
 // =============================================================================
-string getCurrentDate();
-string toLowerStr(const string& s);
-string trimStr(const string& s);
-void logActivity(const string& action);
-string buildChangeSummary(const MediaRecord& before, const MediaRecord& after);
-void saveLibrary();
-void resetForm();
-bool titleExists(const string& title, int excludeIndex = -1);
+string getCurrentDate(); // Returns the current date in YYYY-MM-DD format.
+string toLowerStr(const string& s); // Converts a string to lowercase (used for search so "A" matches "a")
+string trimStr(const string& s); // Removes leading and trailing whitespace from a string
+void logActivity(const string& action); // Adds a new entry to the activity log with the current date and time.
+string buildChangeSummary(const MediaRecord& before, const MediaRecord& after); // Compares two MediaRecord objects and returns a string summarizing the changes made.
+void saveLibrary(); // Saves the current state of the library to disk.
+void resetForm(); // Clears all fields in the add/edit form.
+bool titleExists(const string& title, int excludeIndex = -1); // Checks if a media item with the given title already exists in the library.
 
 // =============================================================================
 //  SORTING COMPARATORS - defined in anilog_utils.cpp

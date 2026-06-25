@@ -49,7 +49,7 @@ const char* filterOptions[] = { "All Media", "Anime Only", "Manga Only" };
 // =============================================================================
 //  BASIC STRING / DATE HELPERS
 // -----------------------------------------------------------------------------
-//  These helpers keep validation and log formatting consistent across tabs.
+//  Keep validation and log formatting consistent across tabs.
 //  If the app ever changes date format or title-matching rules, start here.
 // =============================================================================
 string getCurrentDate() {
@@ -121,7 +121,6 @@ bool sortProgressDesc(const MediaRecord& a, const MediaRecord& b) {
 // =============================================================================
 //  FILE HANDLING
 // -----------------------------------------------------------------------------
-//  The app uses simple text files in the working directory:
 //    users.txt                  -> all registered users
 //    <username>_library.txt     -> one pipe-delimited MediaRecord per line
 //    <username>_logs.txt        -> one activity-log entry per line
@@ -213,15 +212,14 @@ void saveLibrary() {
 // =============================================================================
 //  AUTHENTICATION AND FORM STATE
 // -----------------------------------------------------------------------------
-//  Authentication is intentionally local/simple for this class project: usernames
-//  and passwords are stored in users.txt. Login also loads that user's library
+//  username and passwords are stored in users.txt. Login also loads that user's library
 //  and writes a log entry so the session history starts immediately.
 // =============================================================================
 void clearMessage() { authMessage = ""; isAuthError = false; }
 
 bool registerUser(const string& username, const string& password) {
     // Validate the input first, then compare usernames case-insensitively so
-    // "Mika" and "mika" cannot become two separate accounts.
+    // "Vince" and "vince" cannot become two separate accounts.
     string trimmedUser = trimStr(username);
     if (trimmedUser.empty() || password.empty()) {
         authMessage = "All fields are required."; isAuthError = true; return false;
@@ -245,8 +243,7 @@ bool registerUser(const string& username, const string& password) {
 }
 
 bool loginUser(const string& username, const string& password) {
-    // Login mirrors registration's trim/case rules, then initializes all
-    // per-user data used by the dashboard.
+    // Login mirrors registration's trim/case rules, then initializes all. Per-user data used by the dashboard.
     string trimmedUser = trimStr(username);
     if (trimmedUser.empty() || password.empty()) {
         authMessage = "Please fill in both fields."; isAuthError = true; return false;
